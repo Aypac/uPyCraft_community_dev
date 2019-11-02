@@ -1349,8 +1349,9 @@ class ctrlAction(QThread):
         else:
             self.ui.myDefaultProgram=""
             pass
-                    
-        self.reflushTree.emit(res)
+
+        #self.reflushTree.emit(res)
+        self.reflushTree.emit(str(res))
         self.reflushTreeMsg=""
         self.reflushTreeBool=False
 

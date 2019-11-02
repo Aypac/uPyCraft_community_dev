@@ -17,7 +17,7 @@ class findReplaceText(QDialog):
     def __init__(self,parent=None):
         super(findReplaceText,self).__init__(parent) 
         self.setWindowFlags(Qt.WindowCloseButtonHint)#HelpButtonHint?
-        self.setWindowTitle("Find&Replace")
+        self.setWindowTitle("Find & Replace")
         self.setWindowIcon(QIcon(':/logo.png')) 
         self.setStyleSheet("""QDialog{background-color: rgb(236, 236, 236);color:black;}
                            QPushButton{background-color:rgb(253,97,72);color:white;}
@@ -125,8 +125,8 @@ class createBoardNewDirName(QDialog):
         self.nameLineEdit=QLineEdit()
 
         self.nameWidget=QWidget()
-        self.okButton=QPushButton(self.tr("ok"))
-        self.cancelButton=QPushButton(self.tr("cancel"))
+        self.okButton=QPushButton(self.tr("Ok"))
+        self.cancelButton=QPushButton(self.tr("Cancel"))
 
         layout=QGridLayout(self.nameWidget)
         layout.addWidget(self.nameLabel,0,0)
@@ -149,30 +149,30 @@ class SerialWidget(QWidget):
     def __init__(self,parent=None):
         super(SerialWidget,self).__init__(parent)  
         
-        serialBaund=QLabel("baud")
+        serialBaund=QLabel("Baud")
         self.baundComboBox=QComboBox()
         self.baundComboBox.addItems(['100','300','600','1200','2400','4800','9600','14400','19200','38400','56000','57600','115200','128000','256000'])
         self.baundComboBox.setCurrentIndex(12)
 
-        serialBytesize=QLabel("bytesize")
+        serialBytesize=QLabel("Bytesize")
         self.bytesizeComboBox=QComboBox()
         self.bytesizeComboBox.addItems(['5','6','7','8'])
         self.bytesizeComboBox.setCurrentIndex(3)
 		
-        serialParity=QLabel("parity")
+        serialParity=QLabel("Parity")
         self.parityComboBox=QComboBox()
         self.parityComboBox.addItems(['NONE','EVEN','ODD','MARK','SPACE'])
         self.parityComboBox.setCurrentIndex(0)
         
         #serialTimeout
 
-        serialStopbits=QLabel("stopbits")
+        serialStopbits=QLabel("Stopbits")
         self.stopbitsComboBox=QComboBox()
         self.stopbitsComboBox.addItems(['1','1.5','2'])
         self.stopbitsComboBox.setCurrentIndex(0)
 
-        self.okButton=QPushButton(self.tr("ok"))
-        self.cancelButton=QPushButton(self.tr("cancel"))
+        self.okButton=QPushButton(self.tr("Ok"))
+        self.cancelButton=QPushButton(self.tr("Cancel"))
 		
         self.detailWidget=QWidget()
         detailLayout=QGridLayout(self.detailWidget)
@@ -236,9 +236,9 @@ class updateConfig(QWidget):
     def __init__(self,parent=None):
         super(updateConfig,self).__init__(parent)
 
-        checkFirmware=QLabel(self.tr("CheckFirmware"))
+        checkFirmware=QLabel(self.tr("Check Firmware"))
         self.checkBinComBox=QComboBox()
-        self.checkBinComBox.addItems(['check update','no check'])
+        self.checkBinComBox.addItems(['Check for update', 'Don\'t check'])
         self.checkBinComBox.setCurrentIndex(0)
 
         self.detailWidget=QWidget()
@@ -263,8 +263,8 @@ class Preferences(QDialog):
         
         tabWidget=QTabWidget()
         tabWidget.setTabPosition(QTabWidget.North)
-        tabWidget.addTab(self.configUpdate,"config")
-        tabWidget.addTab(self.landlocation,"Language Location")
+        tabWidget.addTab(self.configUpdate,"Config")
+        tabWidget.addTab(self.landlocation,"Localization")
         tabWidget.addTab(SerialWidget(self),"Serial")
         
         layout.addWidget(tabWidget,1,0)

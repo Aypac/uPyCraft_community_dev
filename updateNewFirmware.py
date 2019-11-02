@@ -137,36 +137,36 @@ class updateNewFirmware(QDialog):
         self.okButton=QPushButton(self.tr("ok"))
         self.cancelButton=QPushButton(self.tr("cancel"))
 
-        self.boardLabel=QLabel(self.tr("board"))
+        self.boardLabel=QLabel(self.tr("Board"))
         self.boardComboBox=QComboBox()
         self.boardComboBox.addItems(["esp8266","TPYBoardV202","esp32","microbit"])
         self.boardComboBox.setCurrentIndex(2)
 
-        self.burnAddrLabel=QLabel(self.tr("burn_addr"))
+        self.burnAddrLabel=QLabel(self.tr("Burn address"))
         self.burnAddrComboBox=QComboBox()
         self.burnAddrComboBox.addItems(["0x0","0x1000"])
         self.burnAddrComboBox.setCurrentIndex(0)
 
-        self.eraseflashLabel=QLabel(self.tr("erase_flash"))
+        self.eraseflashLabel=QLabel(self.tr("Erase Flash"))
         self.eraseComboBox=QComboBox()
         self.eraseComboBox.addItems(["yes","no"])
         self.eraseComboBox.setCurrentIndex(1)
 
 
-        self.myGroupBox  = QGroupBox(self.tr("Firmware Choose"))         
+        self.myGroupBox  = QGroupBox(self.tr("Choose the Firmware"))
 
         self.detailWidget=QWidget()
         layout = QGridLayout(self.detailWidget)
         #########
-        self.myGroupBox  = QGroupBox(self.tr("Firmware Choose"))
+        self.myGroupBox  = QGroupBox(self.tr("Choose the Firmware"))
         
         self.myGroupBoxLayout = QGridLayout()
         
-        self.firmwareTip=QLabel(self.tr("Firmware Choose"))
-        self.radioUPY=QRadioButton("uPyCraft")
-        self.radioUser=QRadioButton("Users")
+        self.firmwareTip=QLabel(self.tr("Choose the Firmware"))
+        self.radioUPY=QRadioButton("uPyCraft (download)")
+        self.radioUser=QRadioButton("File")
         self.firmwareName=QLineEdit()
-        self.chooseFirmwareButton=QPushButton(self.tr("choose"))   
+        self.chooseFirmwareButton=QPushButton(self.tr("Choose"))
 
         self.myGroupBoxLayout.addWidget(self.radioUPY,0,0)
         self.myGroupBoxLayout.addWidget(self.radioUser,1,0)

@@ -4,14 +4,14 @@
 import sys
 import time
 import threading
-import uPyCraft_src.Esp
+import Esp
 import urllib
 from urllib import request
 import socket
 import shutil
 import codecs
 from PyQt5.QtCore import *
-from uPyCraft_src.Esp import ESPTool, Burn, downOkReset
+from Esp import ESPTool, Burn, downOkReset
 
 
 class threadUserFirmware(QThread):

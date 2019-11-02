@@ -3,11 +3,11 @@
 
 # Windows
 ## Installation
-This requires you to have python3.4, pyqt4, py2exe, qsci, pyserial and pyflakes installed.
+This requires you to have python3.4, pyqt5, py2exe, qsci, pyserial and pyflakes installed.
 
 1. python3.4:<br>
 
-    download address:https://www.python.org/downloads/windows/ <br>
+    Download from <a href="https://www.python.org/downloads/windows">the official website</a> <br>
         add python to the windows environment variable when installed.<br> 
 
     update pip： python -m pip install -U pip 
@@ -15,28 +15,14 @@ This requires you to have python3.4, pyqt4, py2exe, qsci, pyserial and pyflakes 
         
     pyserial:pip install pyserial 
     
-    py2exe  :pip install py2exe
+    py2exe  : `pip install py2exe`
         Python34/Lib/site-packages/py2exe/icons.py Modify lines89:if iconheader.idCount>10 -> if iconheader.idCount>20
         
-    pyflakes:pip install pyflakes 
+    pyflakes: `pip install pyflakes`
         find api.py and replace with pyflakesChange/api.py 
     
-2. pyqt4:<br>
-
-    sip：<br>
-        download address:https://www.riverbankcomputing.com/software/sip/download <br>
-        
-        unpack the directory and open
-        exec:
-            python configure.py
-        
-        enter Visual Studio command prompt, changedir to sip installed path
-            nmake
-            nmake install
-        
-    PyQt4:<br>
-        download address:https://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.11.4/ <br>
-        follow "next" to install. <br>
+2. pyqt5:<br>
+	You can simply install it with `pip install qscintilla PyQt5-tools serial pyserial`.
 
 ## Running
 Open uPyCraft.py with python3.4 IDE, click the run module button/F5 to run.
@@ -48,7 +34,7 @@ uPyCraft.exe will be created in directory dist/ .
 
 # Linux
 ## Environment
-ubuntu16.04 LTS     Python3.5   PyQt4
+ubuntu16.04 LTS     Python3.5   PyQt5
 ## Install
 ### SIP<br>
 Download SIP from https://riverbankcomputing.com/software/sip/download <br>
@@ -60,7 +46,7 @@ Download SIP from https://riverbankcomputing.com/software/sip/download <br>
 
     sudo apt-get install qt4-dev-tools qt4-doc qt4-qtconfig qt4-demos qt4-designer
     sudo apt-get install libqwt5-qt4 libqwt5-qt4-dev
-### PyQt4<br>
+### PyQt5<br>
 Download PyQt4_gpl_x11-4.12 from https://sourceforge.net/projects/pyqt/files/PyQt4/ <br>
 
     tar zxvf PyQt4_gpl_x11-4.12.tar.gz -C /home/PyQt
@@ -71,25 +57,25 @@ Download PyQt4_gpl_x11-4.12 from https://sourceforge.net/projects/pyqt/files/PyQ
 ### QScintilla
 Download QScintilla from https://sourceforge.net/projects/pyqt/files/QScintilla2/QScintilla-2.9.1/<br>
 
-    tar zxvf QScintilla-2.9.1.tar.gz
-    cd QScintilla-2.9.1
+    `tar zxvf QScintilla-2.9.1.tar.gz`
+    `cd QScintilla-2.9.1`
     #Qt4Qt5
-    cd Qt4Qt5
-    qmake
-    sudo make
-    sudo make install
+    `cd Qt4Qt5`
+    `qmake`
+    `sudo make`
+    `sudo make install`
     #Python
-    cd ../Python
-    python3 configure.py
-    sudo make
-    sudo make install
+    `cd ../Python`
+    `python3 configure.py`
+    `sudo make`
+    `sudo make install`
     #designer-Qt4Qt5
-    cd ../designer-Qt4Qt5
-    qmake designer.pro
-    sudo make
-    sudo make install
+    `cd ../designer-Qt4Qt5`
+    `qmake designer.pro`
+    `sudo make`
+    `sudo make install`
 ### Package uPyCraft<br>
-    pip install pyinstaller
+    `pip install pyinstaller`
     pyinstaller -F uPyCraft.py
     
     

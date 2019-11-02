@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-   
-from PyQt5.QtGui  import *
-from PyQt5.QtCore import *
+#from PyQt5.QtGui  import *
+#from PyQt5.QtCore import *
 from PyQt5        import Qsci
 from PyQt5.Qsci   import QsciScintilla, QsciScintillaBase, QsciLexerPython
-from PyQt5.QtWidgets import *
+#from PyQt5.QtWidgets import *
 
 import binascii
 import queue
@@ -12,10 +12,16 @@ import sys
 import math
 import json
 import os
-import uPyCraft_src.Esp
+
+from PyQt5.QtCore import QSize, Qt, pyqtSignal
+from PyQt5.QtGui import QIcon, QFont, QStandardItemModel, QColor, QTextCursor, QStandardItem, QBrush, QKeySequence
+from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QAction, QActionGroup, QMenu, QFileDialog, \
+    QSplitter, QFrame
+
+import Esp
 import shutil
 import webbrowser
-import uPyCraft_src.qrc_resources
+import qrc_resources
 import time
 import platform
 import threading
@@ -29,17 +35,17 @@ import pyflakes
 from urllib import request
 from pyflakes.api import main as pyflakesMain
 
-from uPyCraft_src.graphicsInterface          import saveUntitled, createBoardNewDirName, findReplaceText, \
+from graphicsInterface          import saveUntitled, createBoardNewDirName, findReplaceText, \
                                        SerialWidget, LanLocWidget, Preferences, treeRightClickRename
-from uPyCraft_src.readWriteUart              import readWriteUart
-from uPyCraft_src.ctrl          import ctrlAction
-from uPyCraft_src.updateNewFirmware          import updateNewFirmware, updateNewFirmwareBar
-from uPyCraft_src.mainComponents             import myTerminal,myTreeView,myTabWidget
-from uPyCraft_src.check                      import checkVersionExampleFire, attentionUpdata, ProgressIDEorExampleBar
-from uPyCraft_src.threadDownloadFirmware     import threadDownloadFirmware, threadUserFirmware
-from uPyCraft_src.microbit_api               import MICROPYTHON_APIS
+from readWriteUart              import readWriteUart
+from ctrl          import ctrlAction
+from updateNewFirmware          import updateNewFirmware, updateNewFirmwareBar
+from mainComponents             import myTerminal,myTreeView,myTabWidget
+from check                      import checkVersionExampleFire, attentionUpdata, ProgressIDEorExampleBar
+from threadDownloadFirmware     import threadDownloadFirmware, threadUserFirmware
+from microbit_api               import MICROPYTHON_APIS
 
-from uPyCraft_src.SourceCodePro import SourceCodePro
+from SourceCodePro import SourceCodePro
 
 mainShow=True
 nowIDEVersion      ="1.1"
@@ -208,40 +214,39 @@ class MainWidget(QMainWindow):
 
     def setFont(self):
         fonts=None
-        if sys.platform.startswith('win32') or sys.platform.startswith('cygwin'):#for windows
-            FONTDIRS=os.path.join(os.environ['WINDIR'],'Fonts')
+        flags=False
+        if sys.platform.startswith('win32') or sys.platform.startswith('cygwin'): #for windows
+            FONTDIRS=os.path.join(os.environ['WINDIR'], 'Fonts')
             fonts=os.listdir(FONTDIRS)
-            flags=False
-        elif sys.platform.startswith('darwin'):#for mac
+        elif sys.platform.startswith('darwin'): #for mac
             FONTDIRS=rootDirectoryPath+"/Library/Fonts"
             fonts=os.listdir(FONTDIRS)
-            flags=False
         if fonts==None:
             return
         for filename in fonts:
-            if(filename.upper().find('SOURCECODEPRO.TTF')==0):
+            if filename.upper().startswith('SOURCECODEPRO'):
                 flags=True
                 break
         if flags is False:
-            checkfont=QMessageBox.question(self,"SourceCodePro Font",  
-                                    "Please install SourceCodePro font",
-                                    QMessageBox.Ok|QMessageBox.Cancel,  
-                                    QMessageBox.Ok)  
-            if checkfont==QMessageBox.Ok:
-                ttf=binascii.unhexlify(SourceCodePro)
+            checkfont = QMessageBox.question(self, "SourceCodePro Font",
+                                             "Please install the 'SourceCodePro' font.",
+                                             QMessageBox.Ok|QMessageBox.Cancel,
+                                             QMessageBox.Ok)
+            if checkfont == QMessageBox.Ok:
+                ttf = binascii.unhexlify(SourceCodePro)
                 try:
-                    fp=open(rootDirectoryPath+'/Desktop/'+'SourceCodePro.ttf','wb')
+                    fp = open(rootDirectoryPath+'/Desktop/SourceCodePro.ttf', 'wb')
                     fp.write(ttf)
                     fp.close()
                     if sys.platform.startswith('win32') or sys.platform.startswith('cygwin'):
                         os.system('SourceCodePro.ttf')
                     elif sys.platform.startswith('darwin'):
-                        subprocess.call(['open',rootDirectoryPath+'/Desktop/'+'SourceCodePro.ttf'])
+                        subprocess.call(['open', rootDirectoryPath+'/Desktop/SourceCodePro.ttf'])
                     #os.remove("SourceCodePro.ttf")
                 except:
-                    print("install ttf false.")
-						  
-        font=QFont(self.tr("Source Code Pro"),10)
+                    print("Installing the ttf fontfile failed.")
+
+        font = QFont(self.tr("Source Code Pro"), 10)
         QApplication.setFont(font)
 
     def createTree(self):
@@ -290,7 +295,7 @@ class MainWidget(QMainWindow):
         #self.lexer.setIndentationWarning(QsciLexerPython.Spaces)
 
     def createTerminal(self):
-        self.terminal=myTerminal(self.readwriteQueue,self)
+        self.terminal=myTerminal(self.readwriteQueue, self)
         
         self.cursor=self.terminal.textCursor()
         self.cursorLeftOrRight=0
@@ -378,34 +383,35 @@ class MainWidget(QMainWindow):
         self.fileOpenToolsAction.triggered.connect(self.slotOpenFile)
 
         #self.fileNewAction=QAction(QIcon(":/newFile.png"),self.tr("New"),self)
-        self.fileNewAction=QAction(self.tr("New"),self)  
+        self.fileNewAction=QAction(self.tr("New"),self)
         self.fileNewAction.setShortcut("Ctrl+N")  
         self.fileNewAction.setStatusTip(self.tr("create a new file"))  
         self.fileNewAction.triggered.connect(self.slotNewFile)
 
-        self.fileNewToolsAction=QAction(QIcon(":/newFile.png"),self.tr("New"),self)
+        self.fileNewToolsAction=QAction(QIcon(":/newFile.png"),self.tr("New File"),self)
         #self.fileNewToolsAction.setShortcut("Ctrl+N")  
-        self.fileNewToolsAction.setStatusTip(self.tr("create a new file"))  
+        self.fileNewToolsAction.setStatusTip(self.tr("Create a new file"))
         self.fileNewToolsAction.triggered.connect(self.slotNewFile)
 
         #self.fileSaveAction=QAction(QIcon(":/save.png"),self.tr("Save"),self)
         self.fileSaveAction=QAction(self.tr("Save"),self)  
         self.fileSaveAction.setShortcut("Ctrl+S")  
-        self.fileSaveAction.setStatusTip(self.tr("save the file"))  
+        self.fileSaveAction.setStatusTip(self.tr("Save currently open file"))
         self.fileSaveAction.triggered.connect(self.slotSaveFile)
 
-        self.fileSaveToolsAction=QAction(QIcon(":/save.png"),self.tr("Save"),self)  
+        self.fileSaveToolsAction=QAction(QIcon(":/save.png"),self.tr("Save File"),self)
         #self.fileSaveToolsAction.setShortcut("Ctrl+S")  #must delete,else ctrl+s not work
-        self.fileSaveToolsAction.setStatusTip(self.tr("save the file"))  
+        self.fileSaveToolsAction.setStatusTip(self.tr("Save the file"))
         self.fileSaveToolsAction.triggered.connect(self.slotSaveFile)
 
         #self.fileSaveAsAction=QAction(QIcon(":/saveas.png"),self.tr("Save as"),self)
-        self.fileSaveAsAction=QAction(self.tr("Save as"),self)  
-        self.fileSaveAsAction.setStatusTip(self.tr("save as a file"))  
+        self.fileSaveAsAction=QAction(self.tr("Save file as"),self)
+        self.fileSaveAsAction.setStatusTip(self.tr("Save as a file"))
+        self.fileSaveAsAction.setShortcut(QKeySequence("Ctrl+Shift+S"))
         self.fileSaveAsAction.triggered.connect(self.slotSaveFileAs)
 
         #self.refreshBoardFileAction=QAction(QIcon(":/flush.png"),self.tr("Reflush Directory "),self)
-        self.refreshBoardFileAction=QAction(self.tr("Reflush Directory "),self)  
+        self.refreshBoardFileAction=QAction(self.tr("Reflush Directory"),self)
         self.refreshBoardFileAction.setStatusTip(self.tr("refresh board file"))  
         self.refreshBoardFileAction.triggered.connect(self.slotTreeModel)
 
@@ -475,25 +481,26 @@ class MainWidget(QMainWindow):
         self.redoToolsAction.triggered.connect(self.slotRedo)
 
         #self.syntaxCheckAction=QAction(QIcon(":/syntaxCheck.png"),self.tr("syntaxCheck"),self)
-        self.syntaxCheckAction=QAction(self.tr("syntaxCheck"),self)
-        self.syntaxCheckAction.setStatusTip("the program syntax check")
+        self.syntaxCheckAction=QAction(self.tr("Check Syntax"),self)
+        self.syntaxCheckAction.setShortcut("F6")
+        self.syntaxCheckAction.setStatusTip("Perform a syntax check on the currently open program")
         self.syntaxCheckAction.triggered.connect(self.slotSyntaxCheck)
 
-        self.syntaxCheckToolsAction=QAction(QIcon(":/syntaxCheck.png"),self.tr("syntaxCheck"),self)
-        self.syntaxCheckToolsAction.setStatusTip("the program syntax check")
+        self.syntaxCheckToolsAction=QAction(QIcon(":/syntaxCheck.png"),self.tr("Check Syntax"),self)
+        self.syntaxCheckToolsAction.setStatusTip("Perform a syntax check on the currently open program")
         self.syntaxCheckToolsAction.triggered.connect(self.slotSyntaxCheck)
 
         #self.clearTerminalAction=QAction(QIcon(":/clear.png"),self.tr("Clear"),self)
         self.clearTerminalAction=QAction(self.tr("Clear"),self)  
-        self.clearTerminalAction.setStatusTip(self.tr("clear Terminal"))  
+        self.clearTerminalAction.setStatusTip(self.tr("Clear Terminal"))
         self.clearTerminalAction.triggered.connect(self.slotClearTerminal)
 
         self.clearTerminalToolsAction=QAction(QIcon(":/clear.png"),self.tr("Clear"),self)  
-        self.clearTerminalToolsAction.setStatusTip(self.tr("clear Terminal"))  
+        self.clearTerminalToolsAction.setStatusTip(self.tr("Clear Terminal"))
         self.clearTerminalToolsAction.triggered.connect(self.slotClearTerminal)
         
         #self.findAction=QAction(QIcon(":/find.png"),self.tr("find replace"),self)
-        self.findAction=QAction(self.tr("find replace"),self)
+        self.findAction=QAction(self.tr("Find and Replace"),self)
         self.findAction.setShortcut("Ctrl+F")
         self.findAction.triggered.connect(self.slotFindReplaceText)
 #tools
@@ -524,10 +531,10 @@ class MainWidget(QMainWindow):
         self.serialConnectToolsAction.triggered.connect(self.slotConnectSerial)
 
         #self.serialClose=QAction(QIcon(":/serialClose.png"),self.tr("disconnect"),self)
-        self.serialClose=QAction(self.tr("disconnect"),self)
+        self.serialClose=QAction(self.tr("Disconnect"),self)
         self.serialClose.triggered.connect(self.slotCloseSerial)
 
-        self.serialCloseToolsAction=QAction(QIcon(":/serialClose.png"),self.tr("disconnect"),self)
+        self.serialCloseToolsAction=QAction(QIcon(":/serialClose.png"),self.tr("Disconnect"),self)
         self.serialCloseToolsAction.triggered.connect(self.slotCloseSerial)
 
         self.esp8266=QAction(self.tr("esp8266"),self)
@@ -569,7 +576,7 @@ class MainWidget(QMainWindow):
         self.boardActionGroup.addAction(self.otherBoard)
         self.boardActionGroup.setExclusive(True)
         
-        self.boardMenu = QMenu(self.tr("board"))
+        self.boardMenu = QMenu(self.tr("Board"))
         
         self.boardMenu.addAction(self.esp8266)
         self.boardMenu.addAction(self.TPYBoardV202)
@@ -579,7 +586,7 @@ class MainWidget(QMainWindow):
         self.boardMenu.addAction(self.microbit)
         self.boardMenu.addAction(self.otherBoard)
         #self.boardMenuTools=QAction(QIcon(":/board.png"),self.tr("board"),self)
-        self.boardMenuTools=QAction(self.tr("board"),self)
+        self.boardMenuTools=QAction(self.tr("Board"),self)
         self.boardMenuTools.setMenu(self.boardMenu)
 
         self.boardMenu.setStyleSheet("""QMenu {background-color: rgb(254,254,254);}
@@ -587,28 +594,29 @@ class MainWidget(QMainWindow):
 
         #self.downloadAction=QAction(QIcon(":/download.png"),self.tr("Download"),self)
         self.downloadAction=QAction(self.tr("Download"),self)
-        self.downloadAction.setStatusTip(self.tr("download file to the board"))
+        self.downloadAction.setStatusTip(self.tr("Download currently opened file onto the micro-controller"))
+        self.downloadAction.setShortcut("F4")
         self.downloadAction.triggered.connect(self.slotDownloadFile)
 
         #self.downloadAndRunAction=QAction(QIcon(":/downloadAndRun.png"),self.tr("DownloadAndRun"),self)
-        self.downloadAndRunAction=QAction(self.tr("DownloadAndRun"),self) 
+        self.downloadAndRunAction=QAction(self.tr("Download and Run"), self)
         self.downloadAndRunAction.setShortcut("F5") 
-        self.downloadAndRunAction.setStatusTip(self.tr("download file and run"))
+        self.downloadAndRunAction.setStatusTip(self.tr("Download currently opened file onto the micro-controller and Run it"))
         self.downloadAndRunAction.triggered.connect(self.slotDownloadFileAndRun)
 
-        self.downloadAndRunToolsAction=QAction(QIcon(":/downloadAndRun.png"),self.tr("DownloadAndRun"),self) 
+        self.downloadAndRunToolsAction=QAction(QIcon(":/downloadAndRun.png"),self.tr("Download and Run"),self)
         #self.downloadAndRunToolsAction.setShortcut("F5") 
-        self.downloadAndRunToolsAction.setStatusTip(self.tr("download file and run"))
+        self.downloadAndRunToolsAction.setStatusTip(self.tr("Download currently opened file onto the micro-controller and Run"))
         self.downloadAndRunToolsAction.triggered.connect(self.slotDownloadFileAndRun)
         self.isDownloadFileAndRun=False
 
         #self.stopProgramAction=QAction(QIcon(":/stop.png"),self.tr("Stop"),self)
-        self.stopProgramAction=QAction(self.tr("Stop"),self)
-        self.stopProgramAction.setStatusTip(self.tr("stop the program"))
+        self.stopProgramAction=QAction(self.tr("Stop"), self)
+        self.stopProgramAction.setStatusTip(self.tr("Stop the program"))
         self.stopProgramAction.triggered.connect(self.slotStopProgram)
 
-        self.stopProgramToolsAction=QAction(QIcon(":/stop.png"),self.tr("Stop"),self)
-        self.stopProgramToolsAction.setStatusTip(self.tr("stop the program"))
+        self.stopProgramToolsAction=QAction(QIcon(":/stop.png"),self.tr("Stop"), self)
+        self.stopProgramToolsAction.setStatusTip(self.tr("Stop the program"))
         self.stopProgramToolsAction.triggered.connect(self.slotStopProgram)
 
         #self.preferenceAction=QAction(QIcon(":/edit.png"),self.tr("Preferences"),self)
@@ -616,11 +624,11 @@ class MainWidget(QMainWindow):
         self.preferenceAction.triggered.connect(self.slotPreferences)
         
         #self.initconfig=QAction(QIcon(":/init.png"),self.tr("InitConfig"),self)
-        self.initconfig=QAction(self.tr("InitConfig"),self)
+        self.initconfig=QAction(self.tr("Init Config"),self)
         self.initconfig.triggered.connect(self.slotInitConfig)
 
         #self.burnfirmware=QAction(QIcon(":/burnFirmware.png"),self.tr("BurnFirmware"),self)
-        self.burnfirmware=QAction(self.tr("BurnFirmware"),self)
+        self.burnfirmware=QAction(self.tr("Burn Firmware"),self)
         self.burnfirmware.triggered.connect(self.slotBurnFirmware)
 #help
         #self.aboutAction=QAction(QIcon(":/about.png"),self.tr("Tutorial online"),self)
@@ -1256,7 +1264,7 @@ class MainWidget(QMainWindow):
         sys.stdout=stdoutFile
         sys.stderr=stderrFile
 
-        pyflakesMain(None,str(syntaxCheckFilePath))
+        #pyflakesMain(None,str(syntaxCheckFilePath))
 
         sys.stdout=backStdout
         sys.stderr=backStderr
@@ -1688,7 +1696,7 @@ class MainWidget(QMainWindow):
                     i.setChecked(True)
                 else:
                     pass
-        elif action.text()=="board":
+        elif action.text()=="Board":
             for i in action.menu().actions():
                 if i.text()==self.currentBoard:
                     i.setChecked(True)
@@ -1698,13 +1706,13 @@ class MainWidget(QMainWindow):
             pass
     def slotDownloadFile(self):
         if self.myserial.ser.isOpen()==False:
-            self.terminal.append('Please open serial')
+            self.terminal.append('Please open serial before downloading.')
             return False
 
         if self.inDownloadFile==False:
             self.inDownloadFile=True
         else:
-            self.terminal.append('already in download model,please wait.')
+            self.terminal.append('Already downloading a file, please wait.')
             return
 
         self.readwriteQueue.put("uitouart:::\x03")
@@ -1716,7 +1724,7 @@ class MainWidget(QMainWindow):
             self.inDownloadFile=False
             return False
         if self.fileName=="untitled":
-            self.terminal.append('Please save the file before download')
+            self.terminal.append('Please save the file before downloading')
             self.inDownloadFile=False
             return False
 
@@ -1750,12 +1758,12 @@ class MainWidget(QMainWindow):
             self.readwriteQueue.put("uitouart:::\x03")
             self.inDownloadFile=False
         else:
-            self.terminal.append("serial not open")
+            self.terminal.append("Serial not open")
         
 ############Tools->InitConfig
     def slotInitConfig(self):
         
-        confirmClose = QMessageBox.question(self,"Attention","sure to init?",
+        confirmClose = QMessageBox.question(self,"Attention","Are you sure you want to init?",
                                                     QMessageBox.Ok|QMessageBox.Cancel,
                                                     QMessageBox.Ok)
         if confirmClose==QMessageBox.Ok:
@@ -1779,7 +1787,7 @@ class MainWidget(QMainWindow):
         try:
             jsonDict=eval(configText)
         except Exception:
-            QMessageBox.information(self,self.tr("attention"),self.tr("Please put the uPy_Craft and workSpace into non-Chinese dir."),QMessageBox.Ok)
+            QMessageBox.information(self,self.tr("Attention"),self.tr("Please put the uPy_Craft and workSpace into non-Chinese dir."),QMessageBox.Ok)
             os.remove("%s/AppData/Local/uPyCraft/config.json"%rootDirectoryPath)
             return
         self.workspacePath="null"
@@ -1843,7 +1851,7 @@ class MainWidget(QMainWindow):
             configFile.close()
 
     def slotWetherUpdateFirmware(self):
-        if self.preferencesDialog.configUpdate.checkBinComBox.currentText()=="check update":
+        if self.preferencesDialog.configUpdate.checkBinComBox.currentText()=='Check for update':
             configFile=open("%s/AppData/Local/uPyCraft/config.json"%rootDirectoryPath,'r')
             configText=configFile.read()
             configFile.close()
@@ -1900,7 +1908,7 @@ class MainWidget(QMainWindow):
                     print("pcopenfile webbrowser")
                     webbrowser.open(filename)
                 else:
-                    print("other platform3.")
+                    print("Unknown platform: "+sys.platform)
             return
 
         if not self.editClassFileitem(filename):
@@ -2365,7 +2373,7 @@ class MainWidget(QMainWindow):
         if self.canNotIdentifyBoard:
             self.updateBin = updateNewFirmware("Burn Firmware",isAuto)
         else:
-            self.updateBin = updateNewFirmware("update Firmware",isAuto)
+            self.updateBin = updateNewFirmware("Update Firmware",isAuto)
         self.updateBin.okButton.clicked.connect(self.updateFirmwareOk)
         self.updateBin.chooseFirmwareButton.clicked.connect(self.chooseUserFirmware)
         self.updateBin.exec_()
@@ -2674,7 +2682,7 @@ class MainWidget(QMainWindow):
         else:
             self.terminal.append(data+"\n")
 
-    def reflushTree(self,data):
+    def reflushTree(self, data):
         if data=="err":
             self.terminal.append("reflush tree error")
             self.inDownloadFile=False

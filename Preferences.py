@@ -3,38 +3,39 @@ import sys
 import time
 import serial
 import serial.tools.list_ports
+from PyQt5.QtGui import QIcon
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt5.QtWidgets import QComboBox, QLabel, QGridLayout, QPushButton, QWidget, QSpacerItem, QTabWidget, QDialog
+
 
 class SerialWidget(QWidget):
-    def __init__(self,parent=None):
+    def __init__(self, parent=None):
         super(SerialWidget,self).__init__(parent)  
         
-        serialBaund=QLabel("baud")
+        serialBaund=QLabel("Baudrate")
         self.baundComboBox=QComboBox()
         self.baundComboBox.addItems(['100','300','600','1200','2400','4800','9600','14400','19200','38400','56000','57600','115200','128000','256000'])
         self.baundComboBox.setCurrentIndex(12)
 
-        serialBytesize=QLabel("bytesize")
+        serialBytesize=QLabel("Bytesize")
         self.bytesizeComboBox=QComboBox()
         self.bytesizeComboBox.addItems(['5','6','7','8'])
         self.bytesizeComboBox.setCurrentIndex(3)
 		
-        serialParity=QLabel("parity")
+        serialParity=QLabel("Parity")
         self.parityComboBox=QComboBox()
         self.parityComboBox.addItems(['NONE','EVEN','ODD','MARK','SPACE'])
         self.parityComboBox.setCurrentIndex(0)
         
         #serialTimeout
 
-        serialStopbits=QLabel("stopbits")
+        serialStopbits=QLabel("Stopbits")
         self.stopbitsComboBox=QComboBox()
         self.stopbitsComboBox.addItems(['1','1.5','2'])
         self.stopbitsComboBox.setCurrentIndex(0)
 
-        self.okButton=QPushButton(self.tr("ok"))
-        self.cancelButton=QPushButton(self.tr("cancel"))
+        self.okButton=QPushButton(self.tr("Ok"))
+        self.cancelButton=QPushButton(self.tr("Cancel"))
 		
         self.detailWidget=QWidget()
         detailLayout=QGridLayout(self.detailWidget)
@@ -102,7 +103,7 @@ class updateConfig(QWidget):
     def __init__(self,parent=None):
         super(updateConfig,self).__init__(parent)
 
-        checkFirmware=QLabel(self.tr("CheckFirmware"))
+        checkFirmware=QLabel(self.tr("Check Firmware"))
         self.checkBinComBox=QComboBox()
         self.checkBinComBox.addItems(['check update','no check'])
         self.checkBinComBox.setCurrentIndex(0)
@@ -128,7 +129,7 @@ class Preferences(QDialog):
         tabWidget.setTabPosition(QTabWidget.West);
         tabWidget.addTab(SerialWidget(self),"Serial")
         tabWidget.addTab(self.landlocation,"Languare Location")
-        tabWidget.addTab(self.configUpdate,"config")
+        tabWidget.addTab(self.configUpdate,"Config")
         layout.addWidget(tabWidget,1,0)
         self.setLayout(layout)
         self.resize(300,200)
