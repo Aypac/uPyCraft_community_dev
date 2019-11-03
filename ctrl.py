@@ -1349,7 +1349,7 @@ class ctrlAction(QThread):
             pass
 
         #self.reflushTree.emit(res)
-        self.reflushTree.emit(str(res))
+        self.reflushTree.emit(res)
         self.reflushTreeMsg=""
         self.reflushTreeBool=False
 

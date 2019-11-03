@@ -46,7 +46,8 @@ class checkVersionExampleFire(QThread):
         
     def run(self):
         global nowExamplesVersion
-        
+
+        print("Retrieving settings")
         if os.path.exists("%s/AppData/Local/uPyCraft/examples/info.json"%rootDirectoryPath)==True:
             myfile=open("%s/AppData/Local/uPyCraft/examples/info.json"%rootDirectoryPath,"r")
             jsonMsg=myfile.read()
@@ -72,14 +73,14 @@ class checkVersionExampleFire(QThread):
             self.status=request.urlopen(checkUpdateUrl).code
         except:
             self.status=404
-        print(self.status)
+        print("Read file status: ", self.status)
         if self.status==404:
             self.exit()
             return
         else:
             res=request.urlopen(checkUpdateUrl)
             page=res.read().decode()
-            print(page)
+            #print(page)
             myfile = open("%s/AppData/Local/uPyCraft/update.json"%rootDirectoryPath,"w")
             myfile.write(page)
             myfile.close()
@@ -87,9 +88,9 @@ class checkVersionExampleFire(QThread):
             self.changeIsCheckFirmware.emit(True)
             self.system = platform.system()#system check
             
-            print(self.system)
-            print(nowIDEVersion)
-            print(nowExamplesVersion)
+            print("Operating system: ", self.system)
+            print("IDE version: ", nowIDEVersion)
+            print("Examples version: ", nowExamplesVersion)
 
             if page=="":
                 self.exit()
@@ -106,9 +107,9 @@ class checkVersionExampleFire(QThread):
             
             #IDE
             if self.ideList[0]["version"]>nowIDEVersion:
-                print("ide has new version")
+                print("New IDE version available.")
                 self.isDownload=True
-                self.updateThing.emit("update uPyCraft IDE",
+                self.updateThing.emit("uPyCraft IDE update",
                                       "There is a new version available for uPyCraft, would you like to upgrade now?")
             else:
                 #examples
@@ -135,8 +136,8 @@ class checkVersionExampleFire(QThread):
 
                     if self.examplesList[0]["version"]>nowExamplesVersion:
                         print("examples has new version")
-                        self.updateThing.emit("update uPyCraft Examples",
-                                              "There is a new version available for EXAMPLES, would you like to upgrade now?")
+                        self.updateThing.emit("uPyCraft Examples update",
+                                              "There is a new version available for the builtin examples, would you like to upgrade now?")
                     else:
                         self.isDownload=False
                 elif self.nowDownload == "Examples":
