@@ -173,8 +173,10 @@ class myTerminal(QTextEdit):
                 self.ui.cursor.movePosition(QTextCursor.End, QTextCursor.MoveAnchor)
                 self.moveCursor(QTextCursor.End)
             self.queue.put("uitouart:::%s" % str(event.text()))
+        # TODO: Add conditions for Qt.Key_End and Qt.Key_Home
 
     def uiRecvFromUart(self, data):
+        return
         if data == "" or data == b'':
             return
 
@@ -333,10 +335,11 @@ class myTerminal(QTextEdit):
                 else:
                     pass
         elif self.keyPressMsg == "\x1b\x5b\x44":  # Key_Left
-            if data == "\x08":
-                self.ui.cursorLeftOrRight -= 1
-                self.ui.cursor = self.textCursor()
-                self.moveCursor(QTextCursor.Left, QTextCursor.MoveAnchor)
+            #if data == "\x08":
+            print("Move left")
+            self.ui.cursorLeftOrRight -= 1
+            self.ui.cursor = self.textCursor()
+            self.moveCursor(QTextCursor.Left, QTextCursor.MoveAnchor)
         elif self.keyPressMsg == "\x1b\x5b\x43":  # Key_Right
             self.ui.cursorLeftOrRight += 1
             self.ui.cursor = self.textCursor()
@@ -743,7 +746,7 @@ class myTreeView(QTreeView):
 
             elif self.dragFrom == "Internal":
                 if True and not self.ui.myserial.ser.isOpen():
-                    print("dropDir: ", dropDownFileName)
+                    # TODO: Allow for moving files in the workspace
                     self.ui.terminal.append("Serial not open, can not drag file")
                     return
                 oldDragFileName = self.dropDir

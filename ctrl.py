@@ -14,9 +14,9 @@ currentTempPath = "%s/AppData/Local/uPyCraft/temp/"%rootDirectoryPath
 
 class ctrlAction(QThread):
     uiRecvFromCtrl = pyqtSignal(str)
-    reflushTree = pyqtSignal(str)
+    reflushTree = pyqtSignal(dict) #dict
     checkFiremware = pyqtSignal(str)
-    loadFileSig = pyqtSignal(str)
+    loadFileSig = pyqtSignal(str, str)
     deleteBoardFileSig = pyqtSignal(str)
     renameDirDeleteDirTab = pyqtSignal(str)
 
@@ -888,7 +888,7 @@ class ctrlAction(QThread):
                 time.sleep(0.01)
                 self.uiRecvFromCtrl.emit("open board file false")
             else:
-                readwriteQueue.put("ctrltouart:::\x03")
+                self.readwriteQueue.put("ctrltouart:::\x03")
                 time.sleep(0.01)
                 self.uiRecvFromCtrl.emit("open board file false")
             return
@@ -930,7 +930,7 @@ class ctrlAction(QThread):
         myfile.write(appendMsg)
         myfile.close()
 
-        self.loadFileSig.emit(filename,appendMsg)
+        self.loadFileSig.emit(filename, appendMsg)
         self.loadFileMsg=""
         self.loadFileBool=False
 
@@ -1181,10 +1181,10 @@ class ctrlAction(QThread):
             if endTime-startTime>3:
                 self.reflushTreeBool=False
                 self.reflushTreeMsg=""
-                self.reflushTree.emit("err")
+                self.reflushTree.emit({"err": "err"})
                 return "err"
 
-    def getFileTree(self,dir):
+    def getFileTree(self, dir):
         self.reflushTreeMsg=""
         self.ctrltouartQueue.put("ctrltouart:::os.listdir(\'%s\')\r\n"%dir)
         result=self.treeWaitUart()
@@ -1348,7 +1348,10 @@ class ctrlAction(QThread):
             self.ui.myDefaultProgram=""
             pass
 
-        #self.reflushTree.emit(res)
+
+        #self.emit(SIGNAL("reflushTree"),res)
+        print(res)
+        #TODO: This fails somehow... So we don't update the tree with the files on the device.
         self.reflushTree.emit(res)
         self.reflushTreeMsg=""
         self.reflushTreeBool=False

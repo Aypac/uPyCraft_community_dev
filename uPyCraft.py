@@ -1,21 +1,35 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5 import Qsci
-from PyQt5.Qsci import QsciScintilla, QsciScintillaBase, QsciLexerPython
-
 import binascii
 import queue
 import sys
 import json
 import os
 
+import PyQt5
+from PyQt5 import Qsci
+from PyQt5.Qsci import QsciScintilla, QsciScintillaBase, QsciLexerPython
 from PyQt5.QtCore import QSize, Qt, pyqtSignal
 from PyQt5.QtGui import QIcon, QFont, QStandardItemModel, QColor, QTextCursor, QStandardItem, QBrush, QKeySequence
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QAction, QActionGroup, QMenu, QFileDialog, \
     QSplitter, QFrame
 
+
+import base64
+import math
+import Esp
+import platform
+import socket
+import urllib
+from urllib import request
+import binascii
+import queue
+import sys
+import json
+import os
 import shutil
 import webbrowser
+import qrc_resources
 import time
 import threading
 import subprocess
@@ -23,7 +37,7 @@ from subprocess import check_output
 import codecs
 import ctypes
 import pyflakes
-from pyflakes.api import main as pyflakesMain
+import pyflakes.api
 
 from graphicsInterface import saveUntitled, createBoardNewDirName, findReplaceText, \
     SerialWidget, Preferences, treeRightClickRename
@@ -65,28 +79,28 @@ EXPANDED_IMPORT = ("from microbit import pin15, pin2, pin0, pin1,\
 MICROBIT_QSCI_APIS = ["import", "from", "class", "global", "else", "while", "break", \
                       "False", "True", "with"]
 
-updateFirmwareList = []
+updateFirmwareList: list = []
 
 
 class fileItem:
     def __init__(self):
-        self.size = 0
-        self.list = []
+        self.size: int = 0
+        self.list: list = []
 
 
 class MainWidget(QMainWindow):
-    changeCurrentBoard = pyqtSignal(str)
-    changeDragDropModel = pyqtSignal(bool)
-    setCursor = pyqtSignal()
-    timerCloseTerminalSig = pyqtSignal()
-    timerAddComMenuSig = pyqtSignal(str)
-    timerSetComMenuSig = pyqtSignal(str)
-    timerClearComMenuSig = pyqtSignal()
-    exitCheckThread = pyqtSignal()
-    confirmUpdata = pyqtSignal(str)
-    changeDragDropModel = pyqtSignal(bool)
-    initRecvdata = pyqtSignal()
-    initMessycode = pyqtSignal()
+    changeCurrentBoard: pyqtSignal = pyqtSignal(str)
+    changeDragDropModel: pyqtSignal = pyqtSignal(bool)
+    setCursor: pyqtSignal = pyqtSignal()
+    timerCloseTerminalSig: pyqtSignal = pyqtSignal()
+    timerAddComMenuSig: pyqtSignal = pyqtSignal(str)
+    timerSetComMenuSig: pyqtSignal = pyqtSignal(str)
+    timerClearComMenuSig: pyqtSignal = pyqtSignal()
+    exitCheckThread: pyqtSignal = pyqtSignal()
+    confirmUpdata: pyqtSignal = pyqtSignal(str)
+    changeDragDropModel: pyqtSignal = pyqtSignal(bool)
+    initRecvdata: pyqtSignal = pyqtSignal()
+    initMessycode: pyqtSignal = pyqtSignal()
 
     def __init__(self, parent=None):
         super(MainWidget, self).__init__(parent)
@@ -98,53 +112,55 @@ class MainWidget(QMainWindow):
         self.setFont()
         self.setIconSize(QSize(36, 36))
 
-        self.fileitem = fileItem()
+        self.fileitem: fileItem = fileItem()
 
-        self.fileName = ''
-        self.rootDir = "."
+        self.fileName: str = ''
+        self.rootDir: str = "."
         self.currentCom = ""
         self.myDefaultProgram = ""
         self.checkDefaultProgram = ""
         self.cutCopyPasteMsg = ""
-        self.currentBoard = "esp32"
+        self.currentBoard: str = "esp32"
         self.workspacePath = ""
-        self.canNotIdentifyBoard = False
+        self.canNotIdentifyBoard: bool = False
 
         # self.setStyleSheet("background-color: rgb(254, 138, 58);")
 
-        self.clipboard = QApplication.clipboard()
+        self.clipboard: QApplication.clipboard = QApplication.clipboard()
 
-        self.readwriteQueue = queue.Queue()
-        self.uitoctrlQueue = queue.Queue()
+        self.readwriteQueue: queue.Queue = queue.Queue()
+        self.uitoctrlQueue: queue.Queue = queue.Queue()
 
-        self.inDownloadFile = False  # 判断是否正在下载，避免多次快速F5，导致异常
-        # tree
-        self.tree = None
+        # Determine whether it is being downloaded, avoiding multiple fast F5s, causing anomalies
+        self.inDownloadFile: bool = False
+
+        # file tree
+        self.tree: myTreeView = None
         self.createTree()
         # lexer
-        self.lexer = None
+        self.lexer: QsciLexerPython = None
         self.createLexer()
         self.autoAPI = Qsci.QsciAPIs(self.lexer)
         # terminal
-        self.terminal = None
+        self.terminal: myTerminal = None
         self.createTerminal()
         # tabWidget
         self.editorLine = 0
         self.editorIndex = 0
         self.editorRightMenu = None
 
-        self.tabWidget = None
+        self.tabWidget: myTabWidget = None
         self.createTabWidget()
         # rightSplitter
-        self.rightSplitter = None
+        self.rightSplitter: QSplitter = None
         self.createRightSplitter()
         # mainWindow
-        self.mainWindow = None
+        self.mainWindow: QSplitter = None
         self.createMainWindow()
 
         self.setCentralWidget(self.mainWindow)
         # serial
-        self.myserial = SerialWidget()
+        self.myserial: SerialWidget = SerialWidget()
         self.serialComList = []
 
         # basic config contains:check config.json,fill workspacePath
@@ -162,14 +178,14 @@ class MainWidget(QMainWindow):
         # create graphics interface
         self.createGraphicsInterface()
         # create Preferences
-        self.preferencesDialog = Preferences()
+        self.preferencesDialog: Preferences = Preferences()
 
         # thread
 
-        self.readuart = readWriteUart(self.readwriteQueue, self)
+        self.readuart: readWriteUart = readWriteUart(self.readwriteQueue, self)
         self.readuart.uiRecvFromUart.connect(self.uiRecvFromCtrl)
 
-        self.ctrl = ctrlAction(self.readuart, self.readwriteQueue, self.uitoctrlQueue, self)
+        self.ctrl: ctrlAction = ctrlAction(self.readuart, self.readwriteQueue, self.uitoctrlQueue, self)
         self.ctrl.uiRecvFromCtrl.connect(self.uiRecvFromCtrl)
         self.ctrl.reflushTree.connect(self.reflushTree)
         self.ctrl.checkFiremware.connect(self.checkFirmware)
@@ -188,7 +204,7 @@ class MainWidget(QMainWindow):
         timer.start()
 
         # check version(IDE,examples)
-        self.check = checkVersionExampleFire(self)
+        self.check: checkVersionExampleFire = checkVersionExampleFire(self)
         self.check.updateThing.connect(self.updateThing)
         self.check.updatePer.connect(self.updataPer)
         self.check.reflushExamples.connect(self.reflushExamples)
@@ -260,6 +276,8 @@ class MainWidget(QMainWindow):
 
         self.tree.setModel(model)
         self.tree.createRightMenu()
+        #TODO: We need to connect the menu with the right click somehow
+        #self.tree.clicked.connect(self.tree.slotRightClickMenu)
 
     def createLexer(self):
         self.lexer = QsciLexerPython()
@@ -1218,6 +1236,7 @@ class MainWidget(QMainWindow):
         # self.tabWidget.currentWidget().setMarkerBackgroundColor(QColor(255,0,0))
 
         syntaxCheckFilePath = "%s/AppData/Local/uPyCraft/temp/syntaxCheck.py" % rootDirectoryPath
+        print("syntaxCheckFilePath: ", syntaxCheckFilePath)
         syntaxCheckFileText = self.tabWidget.currentWidget().text()
 
         filehandle = open(syntaxCheckFilePath, "wb")
@@ -1263,7 +1282,10 @@ class MainWidget(QMainWindow):
         sys.stdout = stdoutFile
         sys.stderr = stderrFile
 
-        pyflakesMain(None, str(syntaxCheckFilePath))
+        #TODO: this line fails when performing syntax checks
+        # "TypeError: 'str' object doesn't support item deletion"
+        #pyflakesMain(None, str(syntaxCheckFilePath))
+        pyflakes.api.main(None, str(syntaxCheckFilePath))
 
         sys.stdout = backStdout
         sys.stderr = backStderr
@@ -2659,11 +2681,11 @@ class MainWidget(QMainWindow):
         if data == ".":
             self.cursor.insertText(data)
         elif data == "download false":
-            self.terminal.append(data + "\n")
+            self.terminal.append(data) # + "\n"
             self.inDownloadFile = False
             self.slotTreeModel()
         elif data == "download ok":
-            self.terminal.append(data + "\n")
+            self.terminal.append(data) # + "\n"
             self.slotTreeModel()
         elif data == "newdir ok":
             self.slotTreeModel()
@@ -2687,14 +2709,15 @@ class MainWidget(QMainWindow):
         elif data == "runningFileBreakFalse":
             self.inDownloadFile = False
         else:
-            self.terminal.append(data + "\n")
+            #print("Add to console: " + data)
+            self.terminal.insertPlainText(data)
 
     def reflushTree(self, data):
-        if data == "err":
+        if data == {"err": "err"}:
             self.terminal.append("reflush tree error")
             self.inDownloadFile = False
             return
-        print("reflushTree=====================%s" % data)
+        print("reflushTree ======= %s" % str(data))
         row = self.rootDevice.rowCount()
         self.rootDevice.removeRows(0, row)
 

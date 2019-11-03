@@ -7,7 +7,7 @@ import sys
 sys.argv.append('py2exe')
 
 py2exe_options = {
-        "includes": ["sip","PyQt4.QtCore","PyQt4.QtGui"],
+        "includes": ["sip","PyQt5.QtCore","PyQt5.QtGui"],
         "dll_excludes": ["MSVCP90.dll"],
         "compressed": 1,
         "optimize": 2,
@@ -17,7 +17,7 @@ py2exe_options = {
 
 setup(
       name = 'IDE',
-      version = '1.0',
+      version = '1.2',
       windows = [{"script":'uPyCraft.py',
                   "icon_resources": [(1,"./images/logo.ico")]
                 }], 

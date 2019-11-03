@@ -14,15 +14,15 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-nowIDEVersion      ="1.1"
-nowExamplesVersion="v0.0"
-rootDirectoryPath  =os.path.expanduser("~")
-rootDirectoryPath  =rootDirectoryPath.replace("\\","/")
+nowIDEVersion = "1.2"
+nowExamplesVersion = "v0.0"
+rootDirectoryPath = os.path.expanduser("~")
+rootDirectoryPath = rootDirectoryPath.replace("\\","/")
 
 class checkVersionExampleFire(QThread):
     updateThing = pyqtSignal(str, str)
     updatePer = pyqtSignal(int)
-    reflushExamples = pyqtSignal()
+    reflushExamples = pyqtSignal(dict)
     changeUpdateFirmwareList = pyqtSignal(dict)
     changeIsCheckFirmware = pyqtSignal(bool)
 
@@ -241,7 +241,6 @@ class attentionUpdata(QDialog):
 
     def chooseCancel(self):
         self.close()
-
 
 class ProgressIDEorExampleBar(QDialog):
     def __init__(self, windowname,parent=None):

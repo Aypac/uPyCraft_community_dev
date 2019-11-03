@@ -49,7 +49,7 @@ class readWriteUart(QThread):
                         if self.writemsg.decode()=="\x03":
                             self.lastmodel=""
                         elif self.lastmodel=="exec_":
-                            self.uiRecvFromUart.emit("program is running,do anything with stop it!1\n")
+                            self.uiRecvFromUart.emit("Program is running, stop it before running any other action.\n")
                             continue
                         try:
                             self.ui.myserial.ser.write(self.writemsg)
