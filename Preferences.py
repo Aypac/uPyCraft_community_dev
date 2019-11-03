@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*
-import sys
-import time
+
+
 import serial
 import serial.tools.list_ports
 from PyQt5.QtGui import QIcon
@@ -128,7 +128,7 @@ class Preferences(QDialog):
         tabWidget=QTabWidget()
         tabWidget.setTabPosition(QTabWidget.West);
         tabWidget.addTab(SerialWidget(self),"Serial")
-        tabWidget.addTab(self.landlocation,"Languare Location")
+        tabWidget.addTab(self.landlocation,"Language Location")
         tabWidget.addTab(self.configUpdate,"Config")
         layout.addWidget(tabWidget,1,0)
         self.setLayout(layout)

@@ -1,15 +1,11 @@
-# -*- coding: utf-8 -*-   
-#from PyQt5.QtGui  import *
-#from PyQt5.QtCore import *
-from PyQt5        import Qsci
-from PyQt5.Qsci   import QsciScintilla, QsciScintillaBase, QsciLexerPython
-#from PyQt5.QtWidgets import *
+# -*- coding: utf-8 -*-
+
+from PyQt5 import Qsci
+from PyQt5.Qsci import QsciScintilla, QsciScintillaBase, QsciLexerPython
 
 import binascii
 import queue
-import base64
 import sys
-import math
 import json
 import os
 
@@ -18,45 +14,39 @@ from PyQt5.QtGui import QIcon, QFont, QStandardItemModel, QColor, QTextCursor, Q
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QAction, QActionGroup, QMenu, QFileDialog, \
     QSplitter, QFrame
 
-import Esp
 import shutil
 import webbrowser
-import qrc_resources
 import time
-import platform
 import threading
-import urllib
 import subprocess
 from subprocess import check_output
 import codecs
-import socket
 import ctypes
 import pyflakes
-from urllib import request
 from pyflakes.api import main as pyflakesMain
 
-from graphicsInterface          import saveUntitled, createBoardNewDirName, findReplaceText, \
-                                       SerialWidget, LanLocWidget, Preferences, treeRightClickRename
-from readWriteUart              import readWriteUart
-from ctrl          import ctrlAction
-from updateNewFirmware          import updateNewFirmware, updateNewFirmwareBar
-from mainComponents             import myTerminal,myTreeView,myTabWidget
-from check                      import checkVersionExampleFire, attentionUpdata, ProgressIDEorExampleBar
-from threadDownloadFirmware     import threadDownloadFirmware, threadUserFirmware
-from microbit_api               import MICROPYTHON_APIS
+from graphicsInterface import saveUntitled, createBoardNewDirName, findReplaceText, \
+                                       SerialWidget, Preferences, treeRightClickRename
+from readWriteUart import readWriteUart
+from ctrl import ctrlAction
+from updateNewFirmware import updateNewFirmware, updateNewFirmwareBar
+from mainComponents import myTerminal,myTreeView,myTabWidget
+from check import checkVersionExampleFire, attentionUpdata, ProgressIDEorExampleBar
+from threadDownloadFirmware import threadDownloadFirmware, threadUserFirmware
+from microbit_api import MICROPYTHON_APIS
 
 from SourceCodePro import SourceCodePro
 
-mainShow=True
-nowIDEVersion      ="1.1"
-isCheckFirmware    =False
-rootDirectoryPath  =os.path.expanduser("~")
-rootDirectoryPath  =rootDirectoryPath.replace("\\","/")
-currentTempPath    ="%s/AppData/Local/uPyCraft/temp/"%rootDirectoryPath
-currentExamplesPath="%s/AppData/Local/uPyCraft/examples"%rootDirectoryPath
-print(rootDirectoryPath)
-print(currentTempPath)
-print(currentExamplesPath)
+mainShow = True
+nowIDEVersion = "1.2"
+isCheckFirmware = False
+rootDirectoryPath = os.path.expanduser("~")
+rootDirectoryPath = rootDirectoryPath.replace("\\","/")
+currentTempPath = "%s/AppData/Local/uPyCraft/temp/"%rootDirectoryPath
+currentExamplesPath = "%s/AppData/Local/uPyCraft/examples"%rootDirectoryPath
+print("rootDirectoryPath=", rootDirectoryPath)
+print("currentTempPath=", currentTempPath)
+print("currentExamplesPath=", currentExamplesPath)
 
 if not os.path.exists("%s/AppData/Local/uPyCraft"%rootDirectoryPath):
     os.makedirs("%s/AppData/Local/uPyCraft"%rootDirectoryPath)
@@ -96,7 +86,7 @@ class MainWidget(QMainWindow):
     initRecvdata = pyqtSignal()
     initMessycode = pyqtSignal()
 
-    def __init__(self,parent=None):
+    def __init__(self, parent=None):
         super(MainWidget,self).__init__(parent)
         #self.setWindowFlags(Qt.WindowCloseButtonHint)#HelpButtonHint?
 #basic set
@@ -182,7 +172,7 @@ class MainWidget(QMainWindow):
         self.ctrl=ctrlAction(self.readuart,self.readwriteQueue,self.uitoctrlQueue,self)
         self.ctrl.uiRecvFromCtrl.connect(self.uiRecvFromCtrl)
         self.ctrl.reflushTree.connect(self.reflushTree)
-        self.ctrl.checkFiremware.connect(self.checkFiremware)
+        self.ctrl.checkFiremware.connect(self.checkFirmware)
         self.ctrl.loadFileSig.connect(self.loadFileSig)
         self.ctrl.deleteBoardFileSig.connect(self.deleteBoardFileSig)
         self.ctrl.renameDirDeleteDirTab.connect(self.renameDirDeleteDirTab)
@@ -872,8 +862,7 @@ class MainWidget(QMainWindow):
 
     def createWorkSpacePath(self):
         if not os.path.exists(self.workspacePath):
-            print("workspacePath is none")
-            print(self.workspacePath)
+            print("workspacePath is none: ", self.workspacePath)
             self.workspacePath = QFileDialog.getExistingDirectory(self,"set your work space path","./")
             if self.workspacePath=="":
                 return False
@@ -1052,7 +1041,7 @@ class MainWidget(QMainWindow):
         if self.tabWidget.currentTab<0:
             return
         filename=QFileDialog.getSaveFileName(self)
-        print(filename)
+        print("Save file as: ", filename)
         if filename=="":
             return
         splitFilename=filename.split("/")[-1]
@@ -1264,7 +1253,7 @@ class MainWidget(QMainWindow):
         sys.stdout=stdoutFile
         sys.stderr=stderrFile
 
-        #pyflakesMain(None,str(syntaxCheckFilePath))
+        pyflakesMain(None,str(syntaxCheckFilePath))
 
         sys.stdout=backStdout
         sys.stderr=backStderr
@@ -1317,7 +1306,7 @@ class MainWidget(QMainWindow):
                 pass
             else:
                 stderr=stderr.split("\n")
-                print(stderr)
+                print("stderr", stderr)
                 for i in stderr:
                     if i=="":
                         continue
@@ -2494,7 +2483,7 @@ class MainWidget(QMainWindow):
             self.updateFirmwareBar.close()
             QMessageBox.information(self,self.tr("attention"),self.tr("download false."),QMessageBox.Ok)
             return
-        print(per)
+        print("firmwareAnyDown, per:", per)
         if per>=100:
             per=100
             self.updateFirmwareBar.downloadEvent(per)
@@ -2720,7 +2709,7 @@ class MainWidget(QMainWindow):
         global isCheckFirmware
         isCheckFirmware=ischeck
         
-    def checkFiremware(self,msg):
+    def checkFirmware(self, msg):
         global updateFirmwareList
         print("checkfirmware=%s"%msg)
         if msg=="false":
@@ -2984,7 +2973,6 @@ class MainWidget(QMainWindow):
             self.timerCloseTerminal.emit()
         timer=threading.Timer(0.2,self.fun_timer)
         timer.start()
-
     
 
 app=QApplication(sys.argv)

@@ -1,13 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import sys
 import time
-import threading
 
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import QThread, pyqtSignal
 
 class readWriteUart(QThread):
     ctrlRecvUartMsg = pyqtSignal(str)
@@ -220,19 +216,3 @@ class readWriteUart(QThread):
 
     def changeCurrentBoard(self,board):
         self.currentBoard=board
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                        
-                    

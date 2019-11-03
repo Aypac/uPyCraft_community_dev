@@ -4,15 +4,13 @@
 import os
 import sys
 import time
-import threading
 import json
 
-from PyQt5.QtCore import *
+from PyQt5.QtCore import QThread, pyqtSignal
 
-
-rootDirectoryPath  =os.path.expanduser("~")
-rootDirectoryPath  =rootDirectoryPath.replace("\\","/")
-currentTempPath="%s/AppData/Local/uPyCraft/temp/"%rootDirectoryPath
+rootDirectoryPath = os.path.expanduser("~")
+rootDirectoryPath = rootDirectoryPath.replace("\\","/")
+currentTempPath = "%s/AppData/Local/uPyCraft/temp/"%rootDirectoryPath
 
 class ctrlAction(QThread):
     uiRecvFromCtrl = pyqtSignal(str)

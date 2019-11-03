@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
 
-import sys
-import time
+
 import serial
 import serial.tools.list_ports
 
@@ -12,6 +8,12 @@ import serial.tools.list_ports
 #    pass
 #else:
 #	QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
+
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QDialog, QWidget, QLineEdit, QLabel, QPushButton, QGridLayout, QComboBox, QSpacerItem, \
+    QTabWidget
+
 
 class findReplaceText(QDialog):
     def __init__(self,parent=None):
@@ -143,7 +145,6 @@ class createBoardNewDirName(QDialog):
         self.close()
     def nameEditCancel(self):
         self.close()
-
 
 class SerialWidget(QWidget):
     def __init__(self,parent=None):

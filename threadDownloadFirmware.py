@@ -1,17 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import sys
 import time
 import threading
-import Esp
-import urllib
 from urllib import request
 import socket
-import shutil
-import codecs
-from PyQt5.QtCore import *
 from Esp import ESPTool, Burn, downOkReset
+from PyQt5.QtCore import QThread, pyqtSignal
 
 
 class threadUserFirmware(QThread):

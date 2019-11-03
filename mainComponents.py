@@ -2,7 +2,6 @@ import sys
 import os
 import shutil
 
-# from PyQt5.QtGui import *
 from PyQt5.QtCore import QPoint, pyqtSignal, QEvent, Qt
 from PyQt5.Qsci import QsciScintilla
 from PyQt5.QtGui import QColor, QPalette, QIcon, QInputMethodEvent, QTextCursor
@@ -21,6 +20,7 @@ class myTerminal(QTextEdit):
         super(myTerminal, self).__init__(parent)
         self.eventFilterEnable = False
         self.setStyleSheet("""QTextEdit{background-color: qlineargradient(x1: 0, x2: 1, stop: 0 #262D34, stop: 1 #222529);
+                           font-size: 12px;
                            border-style:none;
                            color:white;}
                            QScrollBar:vertical{background-color:rgb(94,98,102);
@@ -824,8 +824,6 @@ class myTreeView(QTreeView):
             return
 
 
-
-
 class myTabWidget(QTabWidget):
     def __init__(self, editorRightMenu, fileitem, parent):
         super(myTabWidget, self).__init__(parent)
@@ -1018,7 +1016,7 @@ class myTabWidget(QTabWidget):
         editor.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         # set tab's stylesheet
-        editor.setStyleSheet("""QWidget{font-size:20pt;border: 0px solid white;border-radius:1px;}""")
+        editor.setStyleSheet("""QWidget{font-size: 20pt; border: 0px solid white;border-radius:1px;}""")
 
         self.setCurrentWidget(editor)
         if filename != "untitled":
