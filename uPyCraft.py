@@ -14,7 +14,6 @@ from PyQt5.QtGui import QIcon, QFont, QStandardItemModel, QColor, QTextCursor, Q
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QAction, QActionGroup, QMenu, QFileDialog, \
     QSplitter, QFrame
 
-
 import base64
 import math
 import Esp
@@ -276,8 +275,8 @@ class MainWidget(QMainWindow):
 
         self.tree.setModel(model)
         self.tree.createRightMenu()
-        #TODO: We need to connect the menu with the right click somehow
-        #self.tree.clicked.connect(self.tree.slotRightClickMenu)
+        # TODO: We need to connect the menu with the right click somehow
+        # self.tree.clicked.connect(self.tree.slotRightClickMenu)
 
     def createLexer(self):
         self.lexer = QsciLexerPython()
@@ -353,7 +352,7 @@ class MainWidget(QMainWindow):
             "QTabBar::tab::!selected{background-color:rgb(64,64,64);}"
             "QTabBar::close-button{subcontrol-position:right;image: url(:/tabClose.png)  }"
             "QTabBar::close-button:hover{subcontrol-position:right;image: url(:/tabCloseHover.png)  }"
-            )
+        )
         self.rightSplitter.setHandleWidth(1)
 
         self.rightSplitter.addWidget(self.tabWidget)
@@ -1282,9 +1281,9 @@ class MainWidget(QMainWindow):
         sys.stdout = stdoutFile
         sys.stderr = stderrFile
 
-        #TODO: this line fails when performing syntax checks
+        # TODO: this line fails when performing syntax checks
         # "TypeError: 'str' object doesn't support item deletion"
-        #pyflakesMain(None, str(syntaxCheckFilePath))
+        # pyflakesMain(None, str(syntaxCheckFilePath))
         pyflakes.api.main(None, str(syntaxCheckFilePath))
 
         sys.stdout = backStdout
@@ -2441,7 +2440,7 @@ class MainWidget(QMainWindow):
                 self.firmwareNameList = url.split("/")
                 self.updateSize = firmwareList[str(self.updateBin.boardComboBox.currentText())][0]["size"]
                 self.firmwareSavePath = (
-                            "%s/AppData/Local/uPyCraft/download/%s" % (rootDirectoryPath, self.firmwareNameList[-1]))
+                        "%s/AppData/Local/uPyCraft/download/%s" % (rootDirectoryPath, self.firmwareNameList[-1]))
 
                 if self.updateBin.boardComboBox.currentText() == "microbit" and os.path.exists(self.firmwareSavePath):
                     self.microbitUpdate()
@@ -2681,11 +2680,11 @@ class MainWidget(QMainWindow):
         if data == ".":
             self.cursor.insertText(data)
         elif data == "download false":
-            self.terminal.append(data) # + "\n"
+            self.terminal.append(data)  # + "\n"
             self.inDownloadFile = False
             self.slotTreeModel()
         elif data == "download ok":
-            self.terminal.append(data) # + "\n"
+            self.terminal.append(data)  # + "\n"
             self.slotTreeModel()
         elif data == "newdir ok":
             self.slotTreeModel()
@@ -2709,7 +2708,7 @@ class MainWidget(QMainWindow):
         elif data == "runningFileBreakFalse":
             self.inDownloadFile = False
         else:
-            #print("Add to console: " + data)
+            # print("Add to console: " + data)
             self.terminal.insertPlainText(data)
 
     def reflushTree(self, data):

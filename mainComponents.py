@@ -335,7 +335,7 @@ class myTerminal(QTextEdit):
                 else:
                     pass
         elif self.keyPressMsg == "\x1b\x5b\x44":  # Key_Left
-            #if data == "\x08":
+            # if data == "\x08":
             print("Move left")
             self.ui.cursorLeftOrRight -= 1
             self.ui.cursor = self.textCursor()
@@ -585,7 +585,7 @@ class myTreeView(QTreeView):
         elif ((sys.platform == "linux" and self.ui.fileName.find(rootDirectoryPath) >= 0) or (
                 sys.platform == "win32" and self.ui.fileName.find(":") >= 0) or (
                       sys.platform == "darwin" and self.ui.fileName.find(
-                      rootDirectoryPath) >= 0)) and self.ui.fileName.find("uPy_lib") > 0:
+                  rootDirectoryPath) >= 0)) and self.ui.fileName.find("uPy_lib") > 0:
             self.rightClickMenu.addAction(self.openFile)
             self.rightClickMenu.addAction(self.closeFile)
         elif ((sys.platform == "linux" and self.ui.fileName.find(rootDirectoryPath) >= 0) or (
@@ -596,7 +596,7 @@ class myTreeView(QTreeView):
         elif ((sys.platform == "linux" and self.ui.fileName.find(rootDirectoryPath) >= 0) or (
                 sys.platform == "win32" and self.ui.fileName.find(":") >= 0) or (
                       sys.platform == "darwin" and self.ui.fileName.find(
-                      rootDirectoryPath) >= 0)) and self.ui.fileName.find("workSpace") > 0:
+                  rootDirectoryPath) >= 0)) and self.ui.fileName.find("workSpace") > 0:
             self.rightClickMenu.addAction(self.openFile)
             self.rightClickMenu.addAction(self.closeFile)
             self.rightClickMenu.addAction(self.deleteFile)

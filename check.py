@@ -9,7 +9,6 @@ import platform
 import socket
 import zipfile
 
-
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -17,7 +16,8 @@ from PyQt5.QtWidgets import *
 nowIDEVersion = "1.2"
 nowExamplesVersion = "v0.0"
 rootDirectoryPath = os.path.expanduser("~")
-rootDirectoryPath = rootDirectoryPath.replace("\\","/")
+rootDirectoryPath = rootDirectoryPath.replace("\\", "/")
+
 
 class checkVersionExampleFire(QThread):
     updateThing = pyqtSignal(str, str)
@@ -26,76 +26,76 @@ class checkVersionExampleFire(QThread):
     changeUpdateFirmwareList = pyqtSignal(dict)
     changeIsCheckFirmware = pyqtSignal(bool)
 
-    def __init__(self,parent):
-        super(checkVersionExampleFire,self).__init__(parent)
-        self.ui=parent
-        
-        self.updateSize=0
+    def __init__(self, parent):
+        super(checkVersionExampleFire, self).__init__(parent)
+        self.ui = parent
 
-        self.per=0
-        self.runStep=""
-        self.url=""
-        self.downpath=""
-        self.isDownload=False
-        self.nowDownload=""
-        self.reDownloadNum=0
-        self.downloadOk=False
-        self.status=404
+        self.updateSize = 0
+
+        self.per = 0
+        self.runStep = ""
+        self.url = ""
+        self.downpath = ""
+        self.isDownload = False
+        self.nowDownload = ""
+        self.reDownloadNum = 0
+        self.downloadOk = False
+        self.status = 404
 
         self.ui.exitCheckThread.connect(self.exitCheckThread)
-        
+
     def run(self):
         global nowExamplesVersion
 
         print("Retrieving settings")
-        if os.path.exists("%s/AppData/Local/uPyCraft/examples/info.json"%rootDirectoryPath)==True:
-            myfile=open("%s/AppData/Local/uPyCraft/examples/info.json"%rootDirectoryPath,"r")
-            jsonMsg=myfile.read()
+        if os.path.exists("%s/AppData/Local/uPyCraft/examples/info.json" % rootDirectoryPath) == True:
+            myfile = open("%s/AppData/Local/uPyCraft/examples/info.json" % rootDirectoryPath, "r")
+            jsonMsg = myfile.read()
             myfile.close()
-            jsonMsg=json.loads(jsonMsg)
-            nowExamplesVersion=jsonMsg["version"]
+            jsonMsg = json.loads(jsonMsg)
+            nowExamplesVersion = jsonMsg["version"]
 
-        checkUpdateUrl=""
-        if os.path.exists("%s/AppData/Local/uPyCraft/config.json"%rootDirectoryPath)==True:
-            myfile=open("%s/AppData/Local/uPyCraft/config.json"%rootDirectoryPath,'r')
-            jsonMsg=myfile.read()
+        checkUpdateUrl = ""
+        if os.path.exists("%s/AppData/Local/uPyCraft/config.json" % rootDirectoryPath) == True:
+            myfile = open("%s/AppData/Local/uPyCraft/config.json" % rootDirectoryPath, 'r')
+            jsonMsg = myfile.read()
             myfile.close()
-            jsonDict=eval(jsonMsg)
+            jsonDict = eval(jsonMsg)
 
-            checkUpdateUrl=jsonDict['updateURL']
+            checkUpdateUrl = jsonDict['updateURL']
 
-        page=""
-        if checkUpdateUrl=="":
+        page = ""
+        if checkUpdateUrl == "":
             self.exit()
             return
 
         try:
-            self.status=request.urlopen(checkUpdateUrl).code
+            self.status = request.urlopen(checkUpdateUrl).code
         except:
-            self.status=404
+            self.status = 404
         print("Read file status: ", self.status)
-        if self.status==404:
+        if self.status == 404:
             self.exit()
             return
         else:
-            res=request.urlopen(checkUpdateUrl)
-            page=res.read().decode()
-            #print(page)
-            myfile = open("%s/AppData/Local/uPyCraft/update.json"%rootDirectoryPath,"w")
+            res = request.urlopen(checkUpdateUrl)
+            page = res.read().decode()
+            # print(page)
+            myfile = open("%s/AppData/Local/uPyCraft/update.json" % rootDirectoryPath, "w")
             myfile.write(page)
             myfile.close()
 
             self.changeIsCheckFirmware.emit(True)
-            self.system = platform.system()#system check
-            
+            self.system = platform.system()  # system check
+
             print("Operating system: ", self.system)
             print("IDE version: ", nowIDEVersion)
             print("Examples version: ", nowExamplesVersion)
 
-            if page=="":
+            if page == "":
                 self.exit()
                 return
-            jsonmsg=json.loads(page)
+            jsonmsg = json.loads(page)
 
             self.ideList = jsonmsg['IDE']
             self.firmwareList = jsonmsg['firmware']
@@ -104,56 +104,56 @@ class checkVersionExampleFire(QThread):
             self.changeUpdateFirmwareList.emit(self.firmwareList)
 
             self.ui.confirmUpdata.connect(self.confirmUpdata)
-            
-            #IDE
-            if self.ideList[0]["version"]>nowIDEVersion:
+
+            # IDE
+            if self.ideList[0]["version"] > nowIDEVersion:
                 print("New IDE version available.")
-                self.isDownload=True
+                self.isDownload = True
                 self.updateThing.emit("uPyCraft IDE update",
                                       "There is a new version available for uPyCraft, would you like to upgrade now?")
             else:
-                #examples
-                if self.examplesList[0]["version"]>nowExamplesVersion:
+                # examples
+                if self.examplesList[0]["version"] > nowExamplesVersion:
                     print("examples has new version")
-                    self.isDownload=True
+                    self.isDownload = True
                     self.updateThing.emit("update uPyCraft Examples",
                                           "There is a new version available for EXAMPLES, would you like to upgrade now?"
                                           )
 
         while 1:
-            if self.isDownload==True:
-                if self.nowDownload=="":
+            if self.isDownload == True:
+                if self.nowDownload == "":
                     time.sleep(0.1)
                 elif self.nowDownload == "IDE":
-                    self.nowDownload=""
-                    self.reDownloadNum=0
+                    self.nowDownload = ""
+                    self.reDownloadNum = 0
                     self.reDownload()
-                    if self.downloadOk==False:
-                        self.isDownload=False
+                    if self.downloadOk == False:
+                        self.isDownload = False
                         break
 
-                    #QMessageBox.information(self.ui,self.tr("attention"),self.tr("Please delete the old edition and use the updated one."),QMessageBox.Ok)
+                    # QMessageBox.information(self.ui,self.tr("attention"),self.tr("Please delete the old edition and use the updated one."),QMessageBox.Ok)
 
-                    if self.examplesList[0]["version"]>nowExamplesVersion:
+                    if self.examplesList[0]["version"] > nowExamplesVersion:
                         print("examples has new version")
                         self.updateThing.emit("uPyCraft Examples update",
                                               "There is a new version available for the builtin examples, would you like to upgrade now?")
                     else:
-                        self.isDownload=False
+                        self.isDownload = False
                 elif self.nowDownload == "Examples":
-                    self.nowDownload=""
-                    self.reDownloadNum=0
+                    self.nowDownload = ""
+                    self.reDownloadNum = 0
                     self.reDownload()
-                    if self.downloadOk==False:
-                        self.isDownload=False
+                    if self.downloadOk == False:
+                        self.isDownload = False
                         break
-                    if self.per==100:
-                        f=zipfile.ZipFile(self.downpath,"r")
+                    if self.per == 100:
+                        f = zipfile.ZipFile(self.downpath, "r")
                         for afile in f.namelist():
-                            f.extract(afile,"%s/AppData/Local/uPyCraft"%rootDirectoryPath)
+                            f.extract(afile, "%s/AppData/Local/uPyCraft" % rootDirectoryPath)
                         f.close()
                         self.reflushExamples.emit()
-                    self.isDownload=False     
+                    self.isDownload = False
             else:
                 break
         self.exit()
@@ -162,109 +162,98 @@ class checkVersionExampleFire(QThread):
         self.exit()
 
     def reDownload(self):
-        if self.reDownloadNum==3:
-            self.downloadOk=False
+        if self.reDownloadNum == 3:
+            self.downloadOk = False
             self.updatePer.emit(-1)
-            return 
+            return
         try:
             socket.setdefaulttimeout(3)
-            request.urlretrieve(self.url,self.downpath,self.cbkUpdate)
-            self.downloadOk=True 
+            request.urlretrieve(self.url, self.downpath, self.cbkUpdate)
+            self.downloadOk = True
             return
         except:
-            print("urllib err :%s"%self.url)
-            self.reDownloadNum+=1
+            print("urllib err :%s" % self.url)
+            self.reDownloadNum += 1
             self.reDownload()
-        
 
-    def confirmUpdata(self,gotoUpdata):
-        if gotoUpdata=="IDE":
+    def confirmUpdata(self, gotoUpdata):
+        if gotoUpdata == "IDE":
             self.idenameList = str(self.ideList[0][self.system]["url"]).split("/")
-            self.updateSize=self.ideList[0][self.system]["size"]
-            self.url=self.ideList[0][self.system]["url"]
-            self.downpath=self.idenameList[-1]
-            self.nowDownload="IDE"
-        elif gotoUpdata=="IDEcancel":
-            if self.examplesList[0]["version"]>nowExamplesVersion:
+            self.updateSize = self.ideList[0][self.system]["size"]
+            self.url = self.ideList[0][self.system]["url"]
+            self.downpath = self.idenameList[-1]
+            self.nowDownload = "IDE"
+        elif gotoUpdata == "IDEcancel":
+            if self.examplesList[0]["version"] > nowExamplesVersion:
                 print("examples has new version")
                 self.updateThing.emit("update uPyCraft Examples",
                                       "There is a new version available for EXAMPLES, would you like to upgrade now?")
             else:
-                self.isDownload=False
-        elif gotoUpdata=="Examples":
+                self.isDownload = False
+        elif gotoUpdata == "Examples":
             self.url = self.examplesList[0]["url"]
             examplesNameList = str(self.url).split("/")
-            self.updateSize=self.examplesList[0]["size"]
-            self.downpath="%s/AppData/Local/uPyCraft/download/%s"%(rootDirectoryPath,examplesNameList[-1])
-            self.nowDownload="Examples"
-        elif gotoUpdata=="Examplescancel":
-            self.isDownload=False
+            self.updateSize = self.examplesList[0]["size"]
+            self.downpath = "%s/AppData/Local/uPyCraft/download/%s" % (rootDirectoryPath, examplesNameList[-1])
+            self.nowDownload = "Examples"
+        elif gotoUpdata == "Examplescancel":
+            self.isDownload = False
 
-
-    def cbkUpdate(self,blocknum,blocksize,totalsize):
-        self.per=100.0*blocknum*blocksize/self.updateSize
-        if self.per>=100:
-            self.per=100
+    def cbkUpdate(self, blocknum, blocksize, totalsize):
+        self.per = 100.0 * blocknum * blocksize / self.updateSize
+        if self.per >= 100:
+            self.per = 100
             self.updatePer.emit(self.per)
             return
-            
+
         self.updatePer.emit(self.per)
 
+
 class attentionUpdata(QDialog):
-    def __init__(self,title,labelmsg,parent=None):
-        super(attentionUpdata,self).__init__(parent)
+    def __init__(self, title, labelmsg, parent=None):
+        super(attentionUpdata, self).__init__(parent)
         self.setWindowTitle(title)
-        
+
         self.setWindowIcon(QIcon(':/logo.png'))
 
-        self.okButton=QPushButton(self.tr("ok"))
-        self.cancelButton=QPushButton(self.tr("cancel"))
+        self.okButton = QPushButton(self.tr("ok"))
+        self.cancelButton = QPushButton(self.tr("cancel"))
 
-        self.label=QLabel(self.tr(labelmsg))
-        #self.label.setFixedSize(400, 80)
+        self.label = QLabel(self.tr(labelmsg))
+        # self.label.setFixedSize(400, 80)
         self.label.setWordWrap(True)
         self.label.adjustSize()
 
-        self.detailWidget=QWidget()
+        self.detailWidget = QWidget()
         layout = QGridLayout(self.detailWidget)
-        layout.addWidget(self.label,0,0,1,3)
-        layout.addWidget(self.okButton,1,0)
-        layout.addWidget(self.cancelButton,1,3)
+        layout.addWidget(self.label, 0, 0, 1, 3)
+        layout.addWidget(self.okButton, 1, 0)
+        layout.addWidget(self.cancelButton, 1, 3)
 
         self.setLayout(layout)
         self.setFixedSize(500, 100)
         self.okButton.clicked.connect(self.chooseOk)
         self.cancelButton.clicked.connect(self.chooseCancel)
-        
+
     def chooseOk(self):
         self.close()
 
     def chooseCancel(self):
         self.close()
 
+
 class ProgressIDEorExampleBar(QDialog):
-    def __init__(self, windowname,parent=None):
-        super(ProgressIDEorExampleBar,self).__init__(parent)
+    def __init__(self, windowname, parent=None):
+        super(ProgressIDEorExampleBar, self).__init__(parent)
         self.pbar = QProgressBar(self)
-        detailLayout=QGridLayout()
+        detailLayout = QGridLayout()
         detailLayout.addWidget(self.pbar)
         self.setLayout(detailLayout)
         self.setWindowTitle(windowname)
         self.setWindowIcon(QIcon(':/logo.png'))
-        self.resize(300,150)
-        
+        self.resize(300, 150)
+
     def timerEvent(self, per):
         if per >= 100:
             return
         self.pbar.setValue(per)
-
-
-
-
-
-
-
-
-
-
-        

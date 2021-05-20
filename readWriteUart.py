@@ -5,50 +5,51 @@ import time
 
 from PyQt5.QtCore import QThread, pyqtSignal
 
+
 class readWriteUart(QThread):
     ctrlRecvUartMsg = pyqtSignal(str)
     uiRecvFromUart = pyqtSignal(str)
 
-    def __init__(self,queue,parent):
-        super(readWriteUart,self).__init__(parent)
-        self.ui=parent
-        self.model=""
-        self.writemsg=""
-        self.lastmodel=""
-        self.queue=queue
-        self.maybeCN=b""
-        self.currentBoard="esp32"
+    def __init__(self, queue, parent):
+        super(readWriteUart, self).__init__(parent)
+        self.ui = parent
+        self.model = ""
+        self.writemsg = ""
+        self.lastmodel = ""
+        self.queue = queue
+        self.maybeCN = b""
+        self.currentBoard = "esp32"
         self.ui.changeCurrentBoard.connect(self.changeCurrentBoard)
-        
+
     def run(self):
-        readNum=0
-        sendData=""
-        execSendData=""
-        self.maybeCN=b""
+        readNum = 0
+        sendData = ""
+        execSendData = ""
+        self.maybeCN = b""
         while True:
             if self.ui.myserial.ser.isOpen():
                 if not self.queue.empty():
-                    cmd=self.queue.get()
-                    print("cmd=%s"%cmd)
-                    if cmd.find(":::")>=0:
-                        cmd=cmd.split(":::")
-                        self.model=cmd[0]
+                    cmd = self.queue.get()
+                    print("cmd=%s" % cmd)
+                    if cmd.find(":::") >= 0:
+                        cmd = cmd.split(":::")
+                        self.model = cmd[0]
                         if type(cmd[1]) is bytes:
-                            self.writemsg=cmd[1]
+                            self.writemsg = cmd[1]
                         elif type(cmd[1]) is str:
-                            self.writemsg=cmd[1].encode('utf-8')
+                            self.writemsg = cmd[1].encode('utf-8')
                     else:
-                        self.model=cmd
-                        self.writemsg=""
+                        self.model = cmd
+                        self.writemsg = ""
 
-                    if self.model=="close":
-                        self.lastmodel=""
-                        self.model=""
+                    if self.model == "close":
+                        self.lastmodel = ""
+                        self.model = ""
                         break
-                    elif self.model=="uitouart":
-                        if self.writemsg.decode()=="\x03":
-                            self.lastmodel=""
-                        elif self.lastmodel=="exec_":
+                    elif self.model == "uitouart":
+                        if self.writemsg.decode() == "\x03":
+                            self.lastmodel = ""
+                        elif self.lastmodel == "exec_":
                             self.uiRecvFromUart.emit("Program is running, stop it before running any other action.\n")
                             continue
                         try:
@@ -56,153 +57,151 @@ class readWriteUart(QThread):
                             if self.currentBoard != "microbit":
                                 self.ui.myserial.ser.flush()
                         except Exception:
-                            self.lastmodel=""
-                            self.model=""
+                            self.lastmodel = ""
+                            self.model = ""
                             break
-                    elif self.model=="ctrltouart":
-                        if self.lastmodel=="exec_":
+                    elif self.model == "ctrltouart":
+                        if self.lastmodel == "exec_":
                             self.uiRecvFromUart.emit("program is running,do anything with stop it!2\n")
-                            self.model="uitouart"
+                            self.model = "uitouart"
                             continue
                         try:
                             self.ui.myserial.ser.write(self.writemsg)
                             if self.currentBoard != "microbit":
                                 self.ui.myserial.ser.flush()
                         except Exception:
-                            self.lastmodel=""
-                            self.model=""
+                            self.lastmodel = ""
+                            self.model = ""
                             break
-                    elif self.model=="exec_":
-                        if self.lastmodel=="exec_":
+                    elif self.model == "exec_":
+                        if self.lastmodel == "exec_":
                             self.uiRecvFromUart.emit("program is running,do anything with stop it!3\n")
-                            self.model="uitouart"
+                            self.model = "uitouart"
                             continue
-                        self.lastmodel="exec_"
+                        self.lastmodel = "exec_"
                         try:
                             self.ui.myserial.ser.write(self.writemsg)
                             if self.currentBoard != "microbit":
                                 self.ui.myserial.ser.flush()
                         except Exception:
-                            self.lastmodel=""
-                            self.model=""
+                            self.lastmodel = ""
+                            self.model = ""
                             break
-                
-                if self.model=="" or self.model=="uitouart":
+
+                if self.model == "" or self.model == "uitouart":
                     try:
-                        data=self.ui.myserial.ser.read(1)
+                        data = self.ui.myserial.ser.read(1)
                     except Exception as e:
                         break
-                    if data==b'':
+                    if data == b'':
                         continue
-                    if ord(data)>127:
+                    if ord(data) > 127:
                         pass
                     else:
-                        data=data.decode()
-                    if self.lastmodel=="exec_":
-                        execSendData+=str(data)
-                        if execSendData.find(">")<0:
-                            execSendData=""
-                        elif execSendData.find(">>> ")>=0:
-                            execSendData=""
-                            self.lastmodel=""
-                    
+                        data = data.decode()
+                    if self.lastmodel == "exec_":
+                        execSendData += str(data)
+                        if execSendData.find(">") < 0:
+                            execSendData = ""
+                        elif execSendData.find(">>> ") >= 0:
+                            execSendData = ""
+                            self.lastmodel = ""
+
                     self.uiRecvFromUart.emit(data)
-                    
-                    #if self.ui.myserial.ser.inWaiting()>=128:
+
+                    # if self.ui.myserial.ser.inWaiting()>=128:
                     #    self.ui.myserial.ser.flushInput()
-                elif self.model=="exec_":
+                elif self.model == "exec_":
                     try:
-                        data=self.ui.myserial.ser.read(1)
+                        data = self.ui.myserial.ser.read(1)
                     except Exception:
                         break
                     try:
-                        data=data.decode()
+                        data = data.decode()
                     except Exception as e:
                         print(e)
-                    execSendData+=str(data)
-                    if execSendData.find(">")<0:
-                        execSendData=""
-                    elif execSendData.find(">>> ")>=0:
-                        execSendData=""
-                        self.lastmodel=""
+                    execSendData += str(data)
+                    if execSendData.find(">") < 0:
+                        execSendData = ""
+                    elif execSendData.find(">>> ") >= 0:
+                        execSendData = ""
+                        self.lastmodel = ""
                     self.uiRecvFromUart.emit(data)
-                    if self.ui.myserial.ser.inWaiting()>=128:
+                    if self.ui.myserial.ser.inWaiting() >= 128:
                         self.ui.myserial.ser.flushInput()
-                elif self.model=="ctrltouart":
+                elif self.model == "ctrltouart":
                     try:
-                        data=self.ui.myserial.ser.read(10)
+                        data = self.ui.myserial.ser.read(10)
                     except Exception:
                         break
 
-                    if len(data)>2:
-                        if str(data[-2:-1]).find("b'\\xe")>=0:
+                    if len(data) > 2:
+                        if str(data[-2:-1]).find("b'\\xe") >= 0:
                             time.sleep(0.001)
-                            recv=self.ui.myserial.ser.read(1)
-                            if recv==b'':
-                                data=data[0:-2]
+                            recv = self.ui.myserial.ser.read(1)
+                            if recv == b'':
+                                data = data[0:-2]
                             else:
-                                data+=recv
-                        elif str(data[-1:]).find("b'\\xe")>=0:
+                                data += recv
+                        elif str(data[-1:]).find("b'\\xe") >= 0:
                             time.sleep(0.001)
-                            recv=self.ui.myserial.ser.read(2)
-                            if recv==b'' or len(recv)!=2:
-                                data=data[0:-1]
+                            recv = self.ui.myserial.ser.read(2)
+                            if recv == b'' or len(recv) != 2:
+                                data = data[0:-1]
                             else:
-                                data+=recv
+                                data += recv
                         else:
                             pass
-                    elif len(data)==2:
-                        if str(data[0:1]).find("b'\\xe")>=0:
+                    elif len(data) == 2:
+                        if str(data[0:1]).find("b'\\xe") >= 0:
                             time.sleep(0.001)
-                            recv=self.ui.myserial.ser.read(1)
-                            if recv==b'':
-                                data=data[0:-2]
+                            recv = self.ui.myserial.ser.read(1)
+                            if recv == b'':
+                                data = data[0:-2]
                             else:
-                                data+=recv
-                        elif str(data[1:]).find("b'\\xe")>=0:
+                                data += recv
+                        elif str(data[1:]).find("b'\\xe") >= 0:
                             time.sleep(0.001)
-                            recv=self.ui.myserial.ser.read(2)
-                            if recv==b'' or len(recv)!=2:
-                                data=data[0:-1]
+                            recv = self.ui.myserial.ser.read(2)
+                            if recv == b'' or len(recv) != 2:
+                                data = data[0:-1]
                             else:
-                                data+=recv
+                                data += recv
                     else:
-                        if data==b'':
+                        if data == b'':
                             pass
                         else:
-                            if str(data).find("b'\\xe")>=0:
+                            if str(data).find("b'\\xe") >= 0:
                                 time.sleep(0.001)
-                                recv=self.ui.myserial.ser.read(2)
-                                if recv==b'' or len(recv)!=2:
-                                    data=data[0:-1]
+                                recv = self.ui.myserial.ser.read(2)
+                                if recv == b'' or len(recv) != 2:
+                                    data = data[0:-1]
                                 else:
-                                    data+=recv
+                                    data += recv
 
-                    
-                    if self.maybeCN!=b'':
-                        data=self.maybeCN+data
+                    if self.maybeCN != b'':
+                        data = self.maybeCN + data
                     try:
-                        data=data.decode()
-                        self.maybeCN=b''
+                        data = data.decode()
+                        self.maybeCN = b''
                     except Exception as e:
-                        #print("data:%s"%data)
-                        if len(self.maybeCN)>=3:
-                            self.maybeCN=b''
+                        # print("data:%s"%data)
+                        if len(self.maybeCN) >= 3:
+                            self.maybeCN = b''
                             continue
-                        self.maybeCN=data
+                        self.maybeCN = data
                         continue
-                    self.maybeCN=b''
-                    
+                    self.maybeCN = b''
 
-                    if data=="" or data==None:
-                        readNum+=1
-                        if readNum==6:
+                    if data == "" or data == None:
+                        readNum += 1
+                        if readNum == 6:
                             self.ctrlRecvUartMsg.emit(sendData)
-                            sendData=""
-                            readNum=0
+                            sendData = ""
+                            readNum = 0
                     else:
-                        sendData+=data
-                        readNum=0
+                        sendData += data
+                        readNum = 0
                 else:
                     self.uiRecvFromUart.emit("error read model")
 
@@ -210,9 +209,9 @@ class readWriteUart(QThread):
                 time.sleep(0.01)
 
         print("class read out")
-        self.lastmodel=""
-        self.model=""
+        self.lastmodel = ""
+        self.model = ""
         self.exit()
 
-    def changeCurrentBoard(self,board):
-        self.currentBoard=board
+    def changeCurrentBoard(self, board):
+        self.currentBoard = board
