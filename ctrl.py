@@ -1360,6 +1360,7 @@ class ctrlAction(QThread):
         self.reflushTreeBool = False
 
     def ctrlRecvUartMsg(self, data):
+        # Review (Aypac): I don't know what this does exactly, but there HAS to be a more elegant solution than this!
         if data == "" or data == None:
             return
         elif self.reflushTreeBool == True:

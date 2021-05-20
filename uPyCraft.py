@@ -1,5 +1,18 @@
 # -*- coding: utf-8 -*-
 
+"""
+Review (Aypac): TODO
+- This code needs to be much better commented/documented
+- Most paths etc seem focussed on Win - let's do some good testing on other OS and see if we need to adapt
+- There is a lot of (small-scale) code-duplication that I think could be prevented/removed
+- We need to replace URLs to check for new version, about, etc (and test)
+- If I remember correctly, the terminal is not working properly (anymore) - this should be #1 priority to get this working :)
+- There are many mistakes in the texts in the UI. They sometimes make it hard to understand what is going on. Also explanations are sometimes lacking!
+- The localization hinted at in the menu seems to actually have no grounds in the code. While we are at it, we might actually replace all the hard-coded strings with some localization library.
+"""
+
+# Review (Aypac): Looks like there are a lot of unused import. Let's clean it up and test.
+
 import binascii
 import queue
 import sys
@@ -75,8 +88,7 @@ EXPANDED_IMPORT = ("from microbit import pin15, pin2, pin0, pin1,\
                    accelerometer, display, uart, spi, panic, pin13,\
                    pin12, pin11, pin10, compass")
 
-MICROBIT_QSCI_APIS = ["import", "from", "class", "global", "else", "while", "break", \
-                      "False", "True", "with"]
+MICROBIT_QSCI_APIS = ["import", "from", "class", "global", "else", "while", "break", "False", "True", "with"]
 
 updateFirmwareList: list = []
 
@@ -314,22 +326,28 @@ class MainWidget(QMainWindow):
         self.tabWidget = myTabWidget(self.editorRightMenu, self.fileitem, self)
         self.tabWidget.setTabsClosable(True)
         self.tabWidget.setFont(QFont(self.tr("Source Code Pro"), 10, 100))
-        self.tabWidget.setStyleSheet(""" QWidget{background-color: qlineargradient(x1: 0, x2: 1,stop: 0 #262D34, stop: 1 #222529);
-                                     border-width:0px;border-color:#666666;border-style:none;color:white;}
-                                     QScrollBar:vertical{background-color:rgb(94,98,102);
-                                         border:0px;
-                                         width: 15px;
-                                         margin:0px 0px 0px 0px;
-                                     }
-                                     QScrollBar::add-page:vertical{background-color:rgb(61,62,64);
-                                         width: 15px;
-                                         margin:0px 0px 0px 0px;
-                                     }
-                                     QScrollBar::sub-page:vertical{background-color:rgb(61,62,64);
-                                         width: 15px;
-                                         margin:0px 0px 0px 0px;
-                                     }
-                                     """)
+        self.tabWidget.setStyleSheet("""
+QWidget{
+    background-color: qlineargradient(x1: 0, x2: 1,stop: 0 #262D34, stop: 1 #222529);
+    border-width:0px;border-color:#666666;border-style:none;color:white;
+}
+QScrollBar:vertical{
+    background-color:rgb(94,98,102);
+    border:0px;
+    width: 15px;
+    margin:0px 0px 0px 0px;
+}
+QScrollBar::add-page:vertical{
+    background-color:rgb(61,62,64);
+    width: 15px;
+    margin:0px 0px 0px 0px;
+}
+QScrollBar::sub-page:vertical{
+    background-color:rgb(61,62,64);
+    width: 15px;
+    margin:0px 0px 0px 0px;
+}
+        """)
 
         # self.connect(self.tabWidget, SIGNAL("tabCloseRequested(int)"),self.closeTab)
         # self.connect(self.tabWidget, SIGNAL("currentChanged(int)"),self.currentTabChange)
@@ -337,22 +355,24 @@ class MainWidget(QMainWindow):
     def createRightSplitter(self):
         self.rightSplitter = QSplitter(Qt.Vertical)
         self.rightSplitter.setOpaqueResize(False)
-        self.rightSplitter.setStyleSheet(
-            "QSplitter{background-color:qlineargradient(x1: 0, x2: 1,stop: 0 #646464, stop: 1 #171717);}"
-            "QTabBar::tab{ border-top-left-radius:3px; border-top-right-radius:5px; \
-                                    min-width:120px;  \
-                                    min-height:25px;  \
-                                    border:0px solid rgb(255,0,0); \
-                                    border-bottom:none;  \
-                                    margin-top: 3; \
-                                    color: rgb(255,255,255);\
-                                    }"
-            "QTabWidget::pane{border-width:0px;border-color:rgb(161,161,161);    border-style: inset;background-color: rgb(64, 64, 64);}"
-            "QTabBar::tab::selected{background-color:rgb(38,45,52);border-bottom:2px solid rgb(254,152,77);}"
-            "QTabBar::tab::!selected{background-color:rgb(64,64,64);}"
-            "QTabBar::close-button{subcontrol-position:right;image: url(:/tabClose.png)  }"
-            "QTabBar::close-button:hover{subcontrol-position:right;image: url(:/tabCloseHover.png)  }"
-        )
+        self.rightSplitter.setStyleSheet("""
+QSplitter{ background-color:qlineargradient(x1: 0, x2: 1,stop: 0 #646464, stop: 1 #171717); }
+QTabBar::tab{
+    border-top-left-radius:3px; border-top-right-radius:5px;
+    min-width:120px;  min-height:25px; 
+    border:0px solid rgb(255,0,0); border-bottom:none;
+    margin-top: 3;
+    color: rgb(255,255,255);
+}
+QTabWidget::pane{
+    border-width:0px; border-color:rgb(161,161,161);
+    border-style:inset; background-color: rgb(64, 64, 64);
+}
+QTabBar::tab::selected{ background-color:rgb(38,45,52); border-bottom:2px solid rgb(254,152,77); }
+QTabBar::tab::!selected{ background-color:rgb(64,64,64); }
+QTabBar::close-button{ subcontrol-position:right; image: url(:/tabClose.png) }
+QTabBar::close-button:hover{ subcontrol-position:right; image: url(:/tabCloseHover.png) }
+        """)
         self.rightSplitter.setHandleWidth(1)
 
         self.rightSplitter.addWidget(self.tabWidget)
@@ -425,8 +445,10 @@ class MainWidget(QMainWindow):
         self.exampleMenu = QMenu(self.tr("example"))
         self.exampleMenu.triggered.connect(self.showExamples)
 
-        self.exampleMenu.setStyleSheet("""QMenu {background-color: rgb(254,254,254);}
-                                   QMenu::item::selected { background-color: rgb(255,239,227); color: #000;}""")
+        self.exampleMenu.setStyleSheet("""
+QMenu {background-color: rgb(254,254,254);}
+QMenu::item::selected { background-color: rgb(255,239,227); color: #000;}
+        """)
 
         if self.currentBoard == "esp32":
             self.boardEsp32()
@@ -483,6 +505,8 @@ class MainWidget(QMainWindow):
 
         self.redoToolsAction = QAction(QIcon(":/redo.png"), self.tr("Redo"), self)
         # self.redoToolsAction.setShortcut("Ctrl+Y")
+        # Cheating a bit to add a second shortcut (additionally to Ctrl+Y) to redo here:
+        self.redoAction.setShortcut("Ctrl+Shift+Z")
         self.redoToolsAction.triggered.connect(self.slotRedo)
 
         # self.syntaxCheckAction=QAction(QIcon(":/syntaxCheck.png"),self.tr("syntaxCheck"),self)
@@ -711,8 +735,9 @@ class MainWidget(QMainWindow):
             self.setUnifiedTitleAndToolBarOnMac(False)
 
         # #FFBE2B  #FF4E50
-        fileToolBar.setStyleSheet(
-            """QToolBar {background-color: qlineargradient( y1: 0,  y2: 1,stop: 0 #FF4E50, stop: 1 #FFBE2B);spacing:8px;}""")
+        fileToolBar.setStyleSheet("""
+QToolBar {background-color: qlineargradient( y1: 0,  y2: 1,stop: 0 #FF4E50, stop: 1 #FFBE2B);spacing:8px;}
+        """)
         self.addToolBar(Qt.RightToolBarArea, fileToolBar)
 
     # create examples menu for File->Examples
@@ -940,6 +965,10 @@ class MainWidget(QMainWindow):
                          'workSpace':'%s'}" % (path + "/workSpace"))
             configFile.close()
 
+            # Review (Aypac):
+            # TODO: file-mode 'rU' is deprecated.
+            # I guess replacing it with 'rt' should work, but that should be properly tested
+            # https://stackoverflow.com/questions/38093326/whats-the-difference-between-rb-and-ru-in-the-open-function-for-csv
             configFile = open("%s/AppData/Local/uPyCraft/config.json" % rootDirectoryPath, 'rU')
             configMsg = configFile.read()
             configFile.close()
@@ -947,6 +976,7 @@ class MainWidget(QMainWindow):
             try:
                 jsonDict = eval(configMsg)
             except:
+                # Review (Aypac): This looks like the except statement is too broad for this very specific problem
                 QMessageBox.information(self, self.tr("attention"),
                                         self.tr("Please put the uPy_Craft and workSpace into non-Chinese dir."),
                                         QMessageBox.Ok)
@@ -961,6 +991,8 @@ class MainWidget(QMainWindow):
             try:
                 jsonDict = eval(configMsg)
             except:
+                # Review (Aypac): This looks like the except statement is too broad for this very specific problem
+                # Also let's try to avoid this code-duplication :)
                 QMessageBox.information(self, self.tr("attention"),
                                         self.tr("Please put the uPy_Craft and workSpace into non-Chinese dir."),
                                         QMessageBox.Ok)
@@ -993,7 +1025,7 @@ class MainWidget(QMainWindow):
                 str(filename).find(".txt") < 0 and \
                 str(filename).find(".json") < 0 and \
                 str(filename).find(".ini") < 0:
-            self.terminal.append("current version only open py txt json ini file")
+            self.terminal.append("Note: The current version can only open: py, txt, json, and ini files.")
             return
         self.pcOpenFile(filename)
 
@@ -1002,7 +1034,7 @@ class MainWidget(QMainWindow):
                 self.fileName.find(".txt") < 0 and \
                 self.fileName.find(".json") < 0 and \
                 self.fileName.find(".ini") < 0:
-            self.terminal.append("current version only open py txt json ini file.")
+            self.terminal.append("Note: The current version can only open: py, txt, json, and ini files.")
             return
 
         if sys.platform == "linux" and self.fileName.find(rootDirectoryPath) >= 0:
@@ -1081,11 +1113,13 @@ class MainWidget(QMainWindow):
             filename = filename + '.py'
         elif str(splitFilename)[-1] == ".":
             if (splitFilename[0]) == ".":
+                # Review (aypac): This is a pretty meaningless error message.
                 QMessageBox.information(self, self.tr("waring"), self.tr("error file name!"), QMessageBox.Ok)
                 return
             else:
                 filename = filename + "py"
         elif str(splitFilename).find(".") == 0:
+            # Review (aypac): This is a pretty meaningless error message (also duplication).
             QMessageBox.information(self, self.tr("waring"), self.tr("error file name!"), QMessageBox.Ok)
             return
         elif str(splitFilename).find(".") > 0 and str(splitFilename)[-1] != ".":
@@ -1123,6 +1157,7 @@ class MainWidget(QMainWindow):
             tabname = tabname + '.py'
         elif str(tabname)[-1] == ".":
             if (tabname[0]) == ".":
+                # Review (aypac): This is a pretty meaningless error message (also duplication).
                 self.terminal.append("filename error")
                 return
             else:
@@ -1143,8 +1178,12 @@ class MainWidget(QMainWindow):
 
         confirmFileIsExists = False
         if os.path.exists(self.workspacePath + "/" + tabname) == True:
-            fileIsExists = QMessageBox.question(self, "waring",
-                                                "This file is already exists,continue to insted?",
+
+            # Review (aypac): Not 100% sure what this message is supposed to say... TODO
+            # Maybe "This file already exists. Overwrite file?"
+            # Only removed the obvious spelling mistakes for now.
+            fileIsExists = QMessageBox.question(self, "Warning",
+                                                "This file already exists, continue to instead?",
                                                 QMessageBox.Ok | QMessageBox.Cancel,
                                                 QMessageBox.Ok)
             if fileIsExists == QMessageBox.Ok:
@@ -1402,8 +1441,7 @@ class MainWidget(QMainWindow):
                                     QMessageBox.Ok)
             return
 
-        if self.tabWidget.currentWidget().findFirst(self.findmsg.replaceStartEdit.text(), False, True, True,
-                                                    True) == False:
+        if not self.tabWidget.currentWidget().findFirst(self.findmsg.replaceStartEdit.text(), False, True, True, True):
             # self.terminal.append("can\'t find \'%s\'"%self.findmsg.replaceStartEdit.text())
             return
 
@@ -1452,7 +1490,7 @@ class MainWidget(QMainWindow):
             time.sleep(0.1)
             endTime = time.time()
             if endTime - startTime > 3:
-                self.terminal.append("open serial error, please try again.")
+                self.terminal.append("Could not open serial port, please try again.")
                 self.myserial.ser.close()
                 if not self.myserial.ser.isOpen():
                     self.updateFirmwareCom = jsonDict['serial']
@@ -1477,7 +1515,7 @@ class MainWidget(QMainWindow):
             endTime = time.time()
             if endTime - startTime > 2:
                 self.myserial.ser.close()
-                self.terminal.append("connect serial timeout")
+                self.terminal.append("Opening serial port timed out.")
                 return
 
         senddata = "sys.platform\r"
@@ -1495,7 +1533,7 @@ class MainWidget(QMainWindow):
             endTime = time.time()
             if endTime - startTime > 2:
                 self.myserial.ser.close()
-                self.terminal.append("connect serial timeout")
+                self.terminal.append("Opening serial port timed out.")
                 return
 
         # self.currentBoard=startdata.split("\r\n")[1][1:-1]
@@ -1536,7 +1574,7 @@ class MainWidget(QMainWindow):
 
     def slotConnectSerial(self):
         if self.myserial.ser.isOpen():
-            self.terminal.append("serial already opened.")
+            self.terminal.append("The serial port is already open.")
             self.serialConnectToolsAction.setVisible(False)
             self.serialCloseToolsAction.setVisible(True)
             return
@@ -1576,7 +1614,7 @@ class MainWidget(QMainWindow):
             time.sleep(0.1)
             endTime = time.time()
             if endTime - startTime > 3:
-                self.terminal.append("open serial error, please try again.")
+                self.terminal.append("Could not open serial port, please try again.")
                 self.myserial.ser.close()
                 if not self.myserial.ser.isOpen():
                     self.updateFirmwareCom = jsonDict['serial']
@@ -1601,7 +1639,7 @@ class MainWidget(QMainWindow):
             endTime = time.time()
             if endTime - startTime > 2:
                 self.myserial.ser.close()
-                self.terminal.append("connect serial timeout")
+                self.terminal.append("Opening serial port timed out.")
                 return
 
         senddata = "sys.platform\r"
@@ -1619,7 +1657,7 @@ class MainWidget(QMainWindow):
             endTime = time.time()
             if endTime - startTime > 2:
                 self.myserial.ser.close()
-                self.terminal.append("connect serial timeout")
+                self.terminal.append("Opening serial port timed out.")
                 return
 
         # self.currentBoard=startdata.split("\r\n")[1][1:-1]
@@ -1727,7 +1765,7 @@ class MainWidget(QMainWindow):
 
     def slotDownloadFile(self):
         if self.myserial.ser.isOpen() == False:
-            self.terminal.append('Please open serial before downloading.')
+            self.terminal.append('Please open serial port before downloading.')
             return False
 
         if self.inDownloadFile == False:
@@ -1741,11 +1779,11 @@ class MainWidget(QMainWindow):
 
         self.fileName = self.tabWidget.tabToolTip(self.tabWidget.currentIndex())
         if self.fileName == '':
-            self.terminal.append('Please choose file or input something')
+            self.terminal.append('Please choose file or input something.')
             self.inDownloadFile = False
             return False
         if self.fileName == "untitled":
-            self.terminal.append('Please save the file before downloading')
+            self.terminal.append('Please save the file before downloading.')
             self.inDownloadFile = False
             return False
 
@@ -1783,7 +1821,7 @@ class MainWidget(QMainWindow):
 
     ############Tools->InitConfig
     def slotInitConfig(self):
-
+        # TODO: This warning needs to be clearer. What does init mean for the user?
         confirmClose = QMessageBox.question(self, "Attention", "Are you sure you want to init?",
                                             QMessageBox.Ok | QMessageBox.Cancel,
                                             QMessageBox.Ok)
