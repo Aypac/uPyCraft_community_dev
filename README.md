@@ -1,14 +1,20 @@
-# uPyCraft_src
-#### uPyCraft is an IDE designed for micropython that supports Windows 7, Windows 8, Windows 10, Linux, MAC OSX 10.11, and above.To make it easier for users to use, uPyCraft is released in green in all systems, no need to install.
+# uPyCraft_src (community dev)
+<b>uPyCraft is an IDE designed for micropython that supports Windows 7, 8, and 10, Linux, MAC OSX 10.11, and above.<br />
+To make it easier for users, uPyCraft is released as standalone for all systems, so no need to install.</b>
+
+This is a community clone, trying to give uPyCraft an urgently needed overhaul. This is not stable yet. Refer to <a href='https://github.com/DFRobot/uPyCraft_src'>the original github</a> for a stable version, but you are very welcome to contribute here (issues, pull releases, comments, testing).
+
+The instructions below have not been checked recently and might be outdated. Generally, this project currently requires you to have python3.4, pyqt5, py2exe, QScintilla, pyserial and pyflakes installed.
+<hr />
 
 # Windows
 ## Installation
-This requires you to have python3.4, pyqt5, py2exe, qsci, pyserial and pyflakes installed.
+This requires you to have python3.4, pyqt5, py2exe, QScintilla, pyserial and pyflakes installed.
 
-1. python3.4:<br>
+1. Python >=3.4:<br>
 
     Download from <a href="https://www.python.org/downloads/windows">the official website</a> <br>
-        add python to the windows environment variable when installed.<br> 
+        add python to the windows environment variable during installation.<br> 
 
     update pip： python -m pip install -U pip 
         add pip to the windows environment variable, such as C:/Python34/Scripts 
@@ -21,20 +27,19 @@ This requires you to have python3.4, pyqt5, py2exe, qsci, pyserial and pyflakes 
     pyflakes: `pip install pyflakes`
         find api.py and replace with pyflakesChange/api.py 
     
-2. pyqt5:<br>
-	You can simply install it with `pip install qscintilla PyQt5-tools serial pyserial`.
+2. PyQt5:<br>
+     You can simply install it with `pip install qscintilla PyQt5-tools serial pyserial`.
 
 ## Running
-Open uPyCraft.py with python3.4 IDE, click the run module button/F5 to run.
+Open uPyCraft.py with python IDE, click the run module button/F5 to run.
 
 ## Package uPyCraft
 uPyCraft.exe will be created in directory dist/ .
 
 
-
 # Linux
 ## Environment
-ubuntu16.04 LTS     Python3.5   PyQt5
+Ubuntu 16.04 LTS, Python >=3.5, PyQt5
 ## Install
 ### SIP<br>
 Download SIP from https://riverbankcomputing.com/software/sip/download <br>
